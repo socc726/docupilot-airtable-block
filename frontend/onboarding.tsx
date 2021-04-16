@@ -2,14 +2,16 @@ import React from 'react';
 import { Box, Button, loadCSSFromString, Text } from '@airtable/blocks/ui';
 import { WrapperComponent } from './common';
 
-loadCSSFromString(`.instruction-list:before {
+loadCSSFromString(`
+.instruction:not(:last-child) .instruction-text:before {
     content: "";
     border-left: 1px solid #FFFFFF;
     height: 100%;
     display: block;
-    position: absolute;
-    top: 0;
-    left: 12px;
+    position: relative;
+    float: left;
+    top: 24px;
+    left: -28px;
     z-index: 0;
 } .instruction-box * {
     font-size: 12px;
@@ -26,7 +28,7 @@ const onBoardingInstructions = [
 
 function InstructionComponent({ count, instruction, isLast = false }) {
   return (
-    <Box display="flex">
+    <Box display="flex" className="instruction">
       <Box
         display="flex"
         alignItems="center"
@@ -40,7 +42,12 @@ function InstructionComponent({ count, instruction, isLast = false }) {
       >
         <Text fontWeight="500">{count}</Text>
       </Box>
-      <Text flex="1" marginX={3} marginBottom={isLast ? null : 3}>
+      <Text
+        flex="1"
+        marginX={3}
+        marginBottom={isLast ? null : 3}
+        className="instruction-text"
+      >
         {instruction}
       </Text>
     </Box>
