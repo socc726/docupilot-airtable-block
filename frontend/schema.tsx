@@ -25,6 +25,15 @@ function CustomFieldPicker({
   updateLinkedTable = null,
   width = '50%',
 }) {
+  const field_options = allowed_field_types
+    ? table.fields.filter((airtable_field) =>
+        allowed_field_types.includes(airtable_field.type),
+      )
+    : table.fields;
+  const [selected_field, setSelectedField] = React.useState(
+    defaultSelectedField(field_options, docupilot_field_name),
+  );
+
   if (!table) {
     return (
       <Select
@@ -35,15 +44,6 @@ function CustomFieldPicker({
       />
     );
   }
-
-  const field_options = allowed_field_types
-    ? table.fields.filter((airtable_field) =>
-        allowed_field_types.includes(airtable_field.type),
-      )
-    : table.fields;
-  const [selected_field, setSelectedField] = React.useState(
-    defaultSelectedField(field_options, docupilot_field_name),
-  );
   const options = [
     { value: null, label: '-' },
     ...field_options.map((airtable_field) => ({
@@ -150,7 +150,7 @@ export function SchemaComponent({ schema, activeTable, updateMapping }) {
           Docupilot fields
         </Text>
         <Text width="50%" textColor="light">
-          Airtable fieds/columns
+          Airtable fields/columns
         </Text>
       </Box>
       <Box>{mapping_components}</Box>

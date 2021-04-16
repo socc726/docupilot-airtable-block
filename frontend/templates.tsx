@@ -95,9 +95,8 @@ function TemplateMergeComponent({
         </Text>
       </Box>
       <Text as="p" textColor="light">
-        You can seemlessly insert values from Airtable records into your
-        document by matching the Airtable field name to tags in your Docupilot
-        template
+        You can insert values from Airtable records into your document by
+        mapping the Airtable fields to Docupilot template tokens
       </Text>
       <Box marginY="12px">
         <Switch
