@@ -2,7 +2,8 @@ import React from 'react';
 import { RecordId } from '@airtable/blocks/types';
 import { useSelectedRecordIds } from './utils';
 import { getTemplates } from './apicallouts';
-import { TemplateListComponent, TemplateMergeComponent } from './templates';
+import { TemplateMergeComponent } from './mapping';
+import { TemplateListComponent } from './templates';
 import { GeneratedDocument, LoaderComponent } from './common';
 import {
   MergeFailInfo,
