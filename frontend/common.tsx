@@ -2,14 +2,18 @@ import { Box, Button, Loader, Text } from '@airtable/blocks/ui';
 import React from 'react';
 import { ImageIcon } from './images';
 
-export function WrapperComponent({ child_component, theme = 'light' }) {
+export function WrapperComponent({
+  child_component,
+  theme = 'light',
+  padding = '48px',
+}) {
   return (
     <Box
       backgroundColor={theme == 'light' ? 'white' : '#071C3F'}
-      padding="48px"
-      minHeight="464px"
+      padding={padding}
+      minHeight="100vh"
     >
-      <Box marginY={2}>
+      <Box marginY="12px">
         <ImageIcon
           name={theme == 'light' ? 'master-logo-blue' : 'master-logo-white'}
         />

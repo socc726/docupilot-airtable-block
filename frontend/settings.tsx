@@ -24,13 +24,13 @@ function APIKeyComponent({ apikey, error, saveAPI }) {
   const [edit_mode, setEditMode] = React.useState<boolean>(false);
 
   return (
-    <Box marginY="32px">
+    <Box marginTop="12px">
       {!apikey && (
         <Text fontSize="16px" fontWeight="600" lineHeight="24px">
           Configure API Key
         </Text>
       )}
-      <Box marginY="16px">
+      <Box marginTop="16px">
         <FormField
           label={<Label htmlFor="api-key">API Key</Label>}
           description={
@@ -46,9 +46,7 @@ function APIKeyComponent({ apikey, error, saveAPI }) {
                 </a>{' '}
                 screen from your Docupilot dashboard to find your API Key.
               </Text>
-            ) : (
-              <></>
-            )
+            ) : null
           }
         >
           {!apikey || edit_mode ? (
@@ -62,7 +60,9 @@ function APIKeyComponent({ apikey, error, saveAPI }) {
             />
           ) : (
             <Text fontSize="17px" lineHeight="20px">
-              {apikey}
+              {apikey.substr(0, 5) +
+                '**********************' +
+                apikey.substr(apikey.length - 5)}
             </Text>
           )}
           {!!error && <Text textColor="red">{error}</Text>}
@@ -119,7 +119,7 @@ export function SettingsComponent({ onConnect }) {
   const [error, setError] = React.useState<string>('');
 
   const settings_component = (
-    <Box paddingY="24px">
+    <Box paddingY="12px">
       {!!profile_info && (
         <Box marginTop="12px">
           <Label htmlFor="docupilot-email">Account</Label>
@@ -162,5 +162,10 @@ export function SettingsComponent({ onConnect }) {
     </Box>
   );
 
-  return <WrapperComponent child_component={settings_component} />;
+  return (
+    <WrapperComponent
+      child_component={settings_component}
+      padding={'24px 48px'}
+    />
+  );
 }

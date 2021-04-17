@@ -16,7 +16,7 @@ export function NoSelectionInfo() {
   return (
     <InformationComponent
       image_icon="select-record"
-      content="Select records to generate documents with docupilot"
+      content="Select records to generate documents with Docupilot"
     />
   );
 }
