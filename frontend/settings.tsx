@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Box,
   Button,
+  colors,
   FormField,
   Input,
   Label,
@@ -12,6 +13,7 @@ import {
 } from '@airtable/blocks/ui';
 import { getProfileDetails, setApiKey } from './apicallouts';
 import { WrapperComponent } from './common';
+import { MinimumPermissionsInfo } from './info';
 
 loadCSSFromString(`.settings-action-box * {
     font-weight: 500;
@@ -65,7 +67,7 @@ function APIKeyComponent({ apikey, error, saveAPI }) {
                 apikey.substr(apikey.length - 5)}
             </Text>
           )}
-          {!!error && <Text textColor="red">{error}</Text>}
+          {!!error && <Text textColor={colors.RED}>{error}</Text>}
         </FormField>
       </Box>
       <Box className="settings-action-box">
@@ -113,10 +115,14 @@ function APIKeyComponent({ apikey, error, saveAPI }) {
 export function SettingsComponent({ onConnect }) {
   const globalConfig = useGlobalConfig();
   const apikey: string = globalConfig.get('api-key') as string;
+  const isEditor = globalConfig.checkPermissionsForSet().hasPermission;
+  const [error, setError] = React.useState<string>('');
+
+  if (!isEditor) return <MinimumPermissionsInfo goBack={onConnect} />;
+
   const profile_info: DocupilotAirtable.ProfileInfo = globalConfig.get(
     'profile-info',
   ) as DocupilotAirtable.ProfileInfo;
-  const [error, setError] = React.useState<string>('');
 
   const settings_component = (
     <Box paddingY="12px">
@@ -139,12 +145,17 @@ export function SettingsComponent({ onConnect }) {
       <APIKeyComponent
         apikey={apikey}
         error={error}
-        saveAPI={(api_input, is_update = true) => {
+        saveAPI={async (api_input, is_update = true) => {
+          if (!api_input) {
+            await globalConfig.setAsync('api-key', null);
+            await globalConfig.setAsync('profile-info', null);
+            onConnect();
+          }
           getProfileDetails(api_input)
-            .then((response) => {
+            .then(async (response) => {
               setApiKey(api_input);
-              globalConfig.setAsync('api-key', api_input);
-              globalConfig.setAsync('profile-info', {
+              await globalConfig.setAsync('api-key', api_input);
+              await globalConfig.setAsync('profile-info', {
                 name: response.data.first_name + ' ' + response.data.last_name,
                 email: response.data.email,
                 org: response.data.organization.name || '',

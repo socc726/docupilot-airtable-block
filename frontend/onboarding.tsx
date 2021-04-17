@@ -22,7 +22,7 @@ loadCSSFromString(`
 
 const onBoardingInstructions = [
   'Sign in to dashboard.docupilot.app',
-  'Create an API key or copy an existing API key from Settings  API.',
+  'Create an API key or copy an existing API key from Settings > API Settings.',
   'Paste your API key in the block and start.',
 ];
 

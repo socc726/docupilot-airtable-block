@@ -1,6 +1,6 @@
 import { InformationComponent } from './common';
 import React from 'react';
-import { Text, Box, colors } from '@airtable/blocks/ui';
+import { Text, Box, colors, Button } from '@airtable/blocks/ui';
 import { Routes } from './routes';
 
 export function NoTemplatesInfo() {
@@ -17,6 +17,22 @@ export function NoSelectionInfo() {
     <InformationComponent
       image_icon="select-record"
       content="Select records to generate documents with Docupilot"
+    />
+  );
+}
+
+export function MinimumPermissionsInfo({ goBack }) {
+  return (
+    <InformationComponent
+      image_icon="merge-fail"
+      content="Need editor or higher permissions to be able to configure Docupilot"
+      actions={[
+        {
+          label: 'GoBack',
+          textColor: 'light',
+          onClick: goBack,
+        },
+      ]}
     />
   );
 }

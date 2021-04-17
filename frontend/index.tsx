@@ -3,25 +3,33 @@ import {
   initializeBlock,
   loadCSSFromString,
   useGlobalConfig,
-  useSettingsButton,
+  useWatchable,
 } from '@airtable/blocks/ui';
 import { OnBoardingComponent } from './onboarding';
 import { SettingsComponent } from './settings';
 import { MainComponent } from './main';
 import { setApiKey } from './apicallouts';
+import { settingsButton } from '@airtable/blocks';
 
 loadCSSFromString(`* {
     font-family: SF Pro Text;
     font-style: normal;
     font-weight: normal;
 }`);
+
 function DocupilotBlock() {
   const globalConfig = useGlobalConfig();
-  // @ts-ignore
-  const apikey: string = globalConfig.get('api-key');
+  const isEditor = globalConfig.checkPermissionsForSet().hasPermission;
+  const apikey: string = globalConfig.get('api-key') as string;
   const [show_settings, setShowSettings] = React.useState<boolean>(false);
 
-  useSettingsButton(() => setShowSettings(!show_settings));
+  useWatchable(settingsButton, 'click', () => setShowSettings(!show_settings));
+  if (isEditor) {
+    settingsButton.show();
+  } else {
+    settingsButton.hide();
+  }
+
   if (show_settings) {
     return <SettingsComponent onConnect={() => setShowSettings(false)} />;
   }
