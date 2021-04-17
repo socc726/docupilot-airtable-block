@@ -3,19 +3,28 @@ import { RecordId } from '@airtable/blocks/types';
 import { getSelectedRecordIds } from './utils';
 import { getTemplates } from './apicallouts';
 import { TemplateComponent } from './templates';
-import { InformationComponent, LoaderComponent } from './common';
+import { LoaderComponent } from './common';
 import { Box, Icon, Text } from '@airtable/blocks/ui';
+import {
+  MergeFailInfo,
+  MergeSuccessInfo,
+  NoSelectionInfo,
+  NoTemplatesInfo,
+} from './info';
+import { Routes } from './routes';
 
 export function MainComponent() {
-  const [route, setRoute] = React.useState<string>('template-view');
-  const [page_context, setPageContext] = React.useState<any>(null);
-  const [templates, setTemplates] = React.useState<Docupilot.TemplateList>(
-    null,
-  );
+  const [route, setRoute] = React.useState<Routes>(Routes.templatesList);
+  const [page_context, setPageContext] = React.useState<
+    DocupilotAirtable.GeneratedDocument[]
+  >([]);
+  const [templates, setTemplates] = React.useState<
+    DocupilotAirtable.Template[]
+  >([]);
   const [
     selected_template,
     setSelectedTemplate,
-  ] = React.useState<Docupilot.Template>(null);
+  ] = React.useState<DocupilotAirtable.Template>(null);
   const selected_record_ids: Array<RecordId> = getSelectedRecordIds();
 
   function refreshTemplates() {
@@ -26,20 +35,16 @@ export function MainComponent() {
     });
   }
 
+  // TODO decide if this and above refreshTemplates function
+  //  should be pushed inside templatesList switch case!
   if (templates == null) {
     refreshTemplates();
+    return <LoaderComponent />;
   }
-
-  if (route == 'template-view') {
-    if (!selected_record_ids.length) {
-      return (
-        <InformationComponent
-          image_icon="select-record"
-          content="Select records to generate documents with docupilot"
-        />
-      );
-    }
-    if (templates) {
+  switch (route) {
+    case Routes.templatesList:
+      if (!selected_record_ids.length) return <NoSelectionInfo />;
+      if (!templates) return <NoTemplatesInfo />;
       return (
         <TemplateComponent
           templates={templates}
@@ -51,70 +56,52 @@ export function MainComponent() {
           setPageContext={setPageContext}
         />
       );
-    }
-  } else if (route == 'merge-success') {
-    let context_count = 0;
-    let context: [{ record: string; generated_document: string }] =
-      page_context || [];
-    const merge_context = context.map((c) => (
-      <Box
-        key={context_count++}
-        display="flex"
-        borderBottom="1px solid #E5E5E5"
-        paddingY="12px"
-      >
-        <Text flex="1" fontWeight="500" fontSize="14px" textColor="light">
-          {c.record}
-        </Text>
-        <Box paddingX="12px" display="flex">
-          <Icon name="file" size={20} marginX="6px" />
-          <Text fontSize="12px" textColor="#B3B3B3">
-            {c.generated_document}
-          </Text>
-        </Box>
-      </Box>
-    ));
-    return (
-      <InformationComponent
-        image_icon="merge-success"
-        content="Document created successfully 🎉"
-        sub_content={merge_context}
-        actions={[
-          {
-            label: 'Dismiss',
-            textColor: 'light',
-            onClick: () => {
-              setSelectedTemplate(null);
-              setRoute('template-view');
-            },
-          },
-        ]}
-      />
-    );
-  } else if (route == 'merge-fail') {
-    return (
-      <InformationComponent
-        image_icon="merge-fail"
-        content="Document creation failed ☹️"
-        actions={[
-          {
-            label: 'Retry again',
-            onClick: () => {
-              setRoute('template-view');
-            },
-          },
-          {
-            label: 'Dismiss',
-            variant: 'secondary',
-            textColor: 'light',
-            onClick: () => {
-              setSelectedTemplate(null);
-              setRoute('template-view');
-            },
-          },
-        ]}
-      />
-    );
+    case Routes.mergeSuccess:
+      return (
+        <MergeSuccessInfo
+          merge_context={(page_context || []).map((c, index) => (
+            <GeneratedDocument generatedDocument={c} key={index} />
+          ))}
+          setSelectedTemplate={setSelectedTemplate}
+          setRoute={setRoute}
+        />
+      );
+    case Routes.mergeFail:
+      return (
+        <MergeFailInfo
+          errorMessage={''}
+          setRoute={setRoute}
+          setSelectedTemplate={setSelectedTemplate}
+        />
+      );
+    default:
+      return <LoaderComponent />;
   }
-  return <LoaderComponent />;
+}
+
+function GeneratedDocument({
+  key,
+  generatedDocument,
+}: {
+  key: number;
+  generatedDocument: DocupilotAirtable.GeneratedDocument;
+}) {
+  return (
+    <Box
+      key={key}
+      display="flex"
+      borderBottom="1px solid #E5E5E5"
+      paddingY="12px"
+    >
+      <Text flex="1" fontWeight="500" fontSize="14px" textColor="light">
+        {generatedDocument.airtable_record_name}
+      </Text>
+      <Box paddingX="12px" display="flex">
+        <Icon name="file" size={20} marginX="6px" />
+        <Text fontSize="12px" textColor="#B3B3B3">
+          {generatedDocument.file_name}
+        </Text>
+      </Box>
+    </Box>
+  );
 }

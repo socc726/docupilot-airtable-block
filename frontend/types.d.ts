@@ -1,23 +1,15 @@
-declare namespace Docupilot {
+declare namespace DocupilotAirtable {
   interface Template {
     id: number;
     title: string;
     type: string;
     output_type: string;
   }
-  interface TemplateList extends Array {
-    [index: number]: Template;
-    map<T>(arg0: (template: Template) => T): TemplateList;
-  }
   interface SchemaField {
     name: string;
     type: string;
-    fields?: Schema;
+    fields?: SchemaField[];
     generics?: string;
-  }
-  interface Schema extends Array {
-    [index: number]: SchemaField;
-    map<T>(arg0: (field: SchemaField) => T): Schema;
   }
   interface MappingValue {
     __airtable_field__?: string;
@@ -26,5 +18,14 @@ declare namespace Docupilot {
   }
   interface Mapping {
     [key: string]: MappingValue;
+  }
+  interface ProfileInfo {
+    name: string;
+    email: string;
+    org: string;
+  }
+  interface GeneratedDocument {
+    airtable_record_name: string;
+    file_name: string;
   }
 }

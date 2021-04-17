@@ -9,6 +9,7 @@ function defaultSelectedField(
   docupilot_field_name: string,
 ): Field {
   docupilot_field_name = docupilot_field_name.toLowerCase().replace('_', '');
+  if (!fields) return null;
   return fields.filter((airtable_field) => {
     let airtable_field_name = airtable_field.name
       .toLowerCase()
@@ -25,11 +26,13 @@ function CustomFieldPicker({
   updateLinkedTable = null,
   width = '50%',
 }) {
-  const field_options = allowed_field_types
-    ? table.fields.filter((airtable_field) =>
-        allowed_field_types.includes(airtable_field.type),
-      )
-    : table.fields;
+  const field_options = table
+    ? allowed_field_types
+      ? table.fields.filter((airtable_field) =>
+          allowed_field_types.includes(airtable_field.type),
+        )
+      : table.fields
+    : null;
   const [selected_field, setSelectedField] = React.useState(
     defaultSelectedField(field_options, docupilot_field_name),
   );
@@ -44,6 +47,7 @@ function CustomFieldPicker({
       />
     );
   }
+
   const options = [
     { value: null, label: '-' },
     ...field_options.map((airtable_field) => ({
@@ -77,11 +81,10 @@ function CustomFieldPicker({
 function MappingComponent({ docupilot_field, table, cb, level = 0 }) {
   const [linked_table, setLinkedTable] = React.useState(null);
   const has_child = docupilot_field.fields != null;
-  let mapping_value: Docupilot.MappingValue = {
+  let mapping_value: DocupilotAirtable.MappingValue = {
     __airtable_field__: null,
     __docupilot_type__: docupilot_field.type,
   };
-
   let main_component = (
     <Box display="flex" paddingY="8px" paddingLeft={level > 0 ? '10px' : null}>
       <Text width="50%" fontWeight="500">
@@ -102,7 +105,7 @@ function MappingComponent({ docupilot_field, table, cb, level = 0 }) {
   let child_components;
   if (has_child) {
     let child_count: number = 0;
-    let child_mapping: Docupilot.Mapping = {};
+    let child_mapping: DocupilotAirtable.Mapping = {};
     child_components = docupilot_field.fields.map((child_field) => {
       return (
         <MappingComponent

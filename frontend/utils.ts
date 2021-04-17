@@ -20,7 +20,10 @@ export function getSelectedRecordIds(): Array<RecordId> {
   return cursor.selectedRecordIds;
 }
 
-async function mergeData(mappingValue: Docupilot.MappingValue, record: Record) {
+async function mergeData(
+  mappingValue: DocupilotAirtable.MappingValue,
+  record: Record,
+) {
   const airtable_field = mappingValue.__airtable_field__;
   const docupilot_type = mappingValue.__docupilot_type__;
 
@@ -63,7 +66,7 @@ async function mergeData(mappingValue: Docupilot.MappingValue, record: Record) {
 }
 
 export async function getMergedData(
-  mapping: Docupilot.Mapping,
+  mapping: DocupilotAirtable.Mapping,
   record: Record,
 ) {
   const data = {};
@@ -78,7 +81,7 @@ export async function getMergedData(
 }
 
 export function selectAllowedTypes(
-  schema_field: Docupilot.SchemaField,
+  schema_field: DocupilotAirtable.SchemaField,
 ): Array<string> {
   if (schema_field.type == 'array' && schema_field.generics != 'string') {
     return docupilot_to_airtable_field_mapping[schema_field.generics];

@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Box,
   Button,
+  FormField,
   Input,
   Label,
   loadCSSFromString,
@@ -30,22 +31,42 @@ function APIKeyComponent({ apikey, error, saveAPI }) {
         </Text>
       )}
       <Box marginY="16px">
-        <Label htmlFor="api-key">API Key</Label>
-        {!apikey || edit_mode ? (
-          <Input
-            id="api-key"
-            name="apikey"
-            value={input}
-            onChange={(event) => {
-              setInput(event.target.value);
-            }}
-          />
-        ) : (
-          <Text fontSize="17px" lineHeight="20px">
-            {apikey}
-          </Text>
-        )}
-        {!!error && <Text textColor="red">{error} hello</Text>}
+        <FormField
+          label={<Label htmlFor="api-key">API Key</Label>}
+          description={
+            !apikey || edit_mode ? (
+              <Text>
+                Go to the{' '}
+                <a
+                  href="https://dashboard.docupilot.app/settings/api"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  API Settings
+                </a>{' '}
+                screen from your Docupilot dashboard to find your API Key.
+              </Text>
+            ) : (
+              <></>
+            )
+          }
+        >
+          {!apikey || edit_mode ? (
+            <Input
+              id="api-key"
+              name="apikey"
+              value={input}
+              onChange={(event) => {
+                setInput(event.target.value);
+              }}
+            />
+          ) : (
+            <Text fontSize="17px" lineHeight="20px">
+              {apikey}
+            </Text>
+          )}
+          {!!error && <Text textColor="red">{error}</Text>}
+        </FormField>
       </Box>
       <Box className="settings-action-box">
         {!apikey ? (
@@ -91,14 +112,10 @@ function APIKeyComponent({ apikey, error, saveAPI }) {
 
 export function SettingsComponent({ onConnect }) {
   const globalConfig = useGlobalConfig();
-  // @ts-ignore
-  const apikey: string = globalConfig.get('api-key');
-  // @ts-ignore
-  const profile_info: {
-    name: string;
-    email: string;
-    org: string;
-  } = globalConfig.get('profile-info');
+  const apikey: string = globalConfig.get('api-key') as string;
+  const profile_info: DocupilotAirtable.ProfileInfo = globalConfig.get(
+    'profile-info',
+  ) as DocupilotAirtable.ProfileInfo;
   const [error, setError] = React.useState<string>('');
 
   const settings_component = (

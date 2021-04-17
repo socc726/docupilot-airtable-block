@@ -15,6 +15,7 @@ import { LoaderComponent } from './common';
 import { ImageIcon } from './images';
 import { getActiveTable, getMergedData } from './utils';
 import { generateDocument, getTemplateSchema } from './apicallouts';
+import { Routes } from './routes';
 
 function TemplateItem({ template, select }) {
   return (
@@ -53,13 +54,17 @@ function TemplateMergeComponent({
     false,
   );
   const [attachment_field, setAttachmentField] = React.useState<Field>(null);
-  const [schema, setSchema] = React.useState<Docupilot.Schema>(null);
-  const [merge_inprogress, setMergeInprogress] = React.useState<boolean>(false);
+  const [schema, setSchema] = React.useState<DocupilotAirtable.SchemaField[]>(
+    null,
+  );
+  const [merge_in_progress, setMergeInProgress] = React.useState<boolean>(
+    false,
+  );
 
   const active_table: Table = getActiveTable();
-  const mapping: Docupilot.Mapping = {};
+  const mapping: DocupilotAirtable.Mapping = {};
 
-  function updateMapping(key: string, value: Docupilot.MappingValue) {
+  function updateMapping(key: string, value: DocupilotAirtable.MappingValue) {
     mapping[key] = value;
   }
 
@@ -129,14 +134,14 @@ function TemplateMergeComponent({
       <Button
         width="100%"
         variant="primary"
-        disabled={!schema || merge_inprogress}
+        disabled={!schema || merge_in_progress}
         onClick={() => {
-          setMergeInprogress(true);
+          setMergeInProgress(true);
           active_table
             .selectRecordsAsync()
             .then((query) => {
               let merged_record_count = 0;
-              let success_context = [];
+              let success_context: DocupilotAirtable.GeneratedDocument[] = [];
               selectedRecordIds.forEach((record_id) => {
                 const record: Record = query.getRecordById(record_id);
                 const record_name: string = record.name;
@@ -159,41 +164,41 @@ function TemplateMergeComponent({
                             filename: response.data.file_name,
                           });
                           success_context.push({
-                            record: record_name,
-                            generated_document: response.data.file_name,
+                            airtable_record_name: record_name,
+                            file_name: response.data.file_name,
                           });
                           active_table.updateRecordAsync(record, {
                             [attachment_field.id]: attachments,
                           });
                         }
                         if (merged_record_count == selectedRecordIds.length) {
-                          setMergeInprogress(false);
+                          setMergeInProgress(false);
                           setPageContext(success_context);
-                          setRoute('merge-success');
+                          setRoute(Routes.mergeSuccess);
                         }
                       })
                       .catch((error) => {
                         console.log('error in generateDocument :: ', error);
-                        setMergeInprogress(false);
-                        setRoute('merge-fail');
+                        setMergeInProgress(false);
+                        setRoute(Routes.mergeFail);
                       });
                   })
                   .catch((error) => {
                     console.log('error in getMergedData :: ', error);
-                    setMergeInprogress(false);
-                    setRoute('merge-fail');
+                    setMergeInProgress(false);
+                    setRoute(Routes.mergeFail);
                   });
               });
               query.unloadData();
             })
             .catch((error) => {
               console.log('error listening to table selection :: ', error);
-              setMergeInprogress(false);
-              setRoute('merge-fail');
+              setMergeInProgress(false);
+              setRoute(Routes.mergeFail);
             });
         }}
       >
-        {merge_inprogress ? (
+        {merge_in_progress ? (
           <Loader scale={0.3} fillColor="#fff" />
         ) : (
           <Text
@@ -202,7 +207,8 @@ function TemplateMergeComponent({
             lineHeight="17px"
             textColor="white"
           >
-            Create document
+            Create {selectedRecordIds.length} document
+            {selectedRecordIds.length > 1 ? 's' : ''}
           </Text>
         )}
       </Button>
@@ -216,7 +222,7 @@ function TemplateListComponent({
   refreshTemplates,
 }) {
   const [search_term, setSearchTerm] = React.useState<string>('');
-  let filtered_templates: Docupilot.TemplateList = !search_term
+  let filtered_templates: DocupilotAirtable.Template[] = !search_term
     ? templates
     : templates.filter((_t) => _t.title.toLowerCase().includes(search_term));
 
@@ -231,12 +237,15 @@ function TemplateListComponent({
     <Box paddingY={4}>
       <Box display="flex" marginX="24px" marginBottom="16px">
         <Heading as="h3" flex={1}>
-          Select a docupilot template
+          Select a Docupilot template
         </Heading>
         <Button
           aria-label="sync-templates"
           variant="secondary"
           onClick={refreshTemplates}
+          style={{
+            paddingTop: '6px',
+          }}
         >
           <ImageIcon name="sync" />
         </Button>
@@ -244,8 +253,9 @@ function TemplateListComponent({
       <Input
         marginX="24px"
         marginY="12px"
+        width="calc( 100% - 48px )"
         value={search_term}
-        placeholder="Search documents"
+        placeholder="Search templates"
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <dl>{template_items}</dl>

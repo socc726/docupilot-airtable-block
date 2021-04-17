@@ -43,13 +43,13 @@ export function InformationComponent({
     );
   });
   return (
-    <Box paddingX="24px" paddingY="4px">
+    <Box paddingX="24px" paddingY="4px" height="100vh">
       <Box
         backgroundColor="white"
         display="flex"
         flexDirection="column"
         justifyContent="center"
-        minHeight="400px"
+        minHeight={`calc(100% - 8px - ${48 * actionButtons.length}px)`}
       >
         <Box display="flex" flexDirection="column" alignItems="center">
           <Box margin="16px">
@@ -59,9 +59,13 @@ export function InformationComponent({
             {content}
           </Text>
         </Box>
-        {sub_content && <Box marginTop={4}>{sub_content}</Box>}
+        {sub_content && (
+          <Box marginTop={'4px'} marginBottom={'4px'}>
+            {sub_content}
+          </Box>
+        )}
       </Box>
-      {actionButtons}
+      <div>{actionButtons}</div>
     </Box>
   );
 }
@@ -70,7 +74,8 @@ export function LoaderComponent() {
   return (
     <Box
       width="100%"
-      height="300px"
+      height="100vh"
+      display="flex"
       alignItems="center"
       justifyContent="center"
     >
