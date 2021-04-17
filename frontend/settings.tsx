@@ -149,17 +149,18 @@ export function SettingsComponent({ onConnect }) {
           if (!api_input) {
             await globalConfig.setAsync('api-key', null);
             await globalConfig.setAsync('profile-info', null);
-            onConnect();
           }
           getProfileDetails(api_input)
             .then(async (response) => {
               setApiKey(api_input);
-              await globalConfig.setAsync('api-key', api_input);
-              await globalConfig.setAsync('profile-info', {
-                name: response.data.first_name + ' ' + response.data.last_name,
-                email: response.data.email,
-                org: response.data.organization.name || '',
-              });
+              await Promise.all([
+                globalConfig.setAsync('api-key', api_input),
+                globalConfig.setAsync('profile-info', {
+                  name: `${response.data.first_name} ${response.data.last_name}`,
+                  email: response.data.email,
+                  org: response.data.organization.name || '',
+                }),
+              ]);
               if (!is_update) {
                 onConnect();
               }

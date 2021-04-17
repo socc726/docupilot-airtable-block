@@ -1,17 +1,10 @@
-import { useBase, useLoadable, useWatchable } from '@airtable/blocks/ui';
-import { cursor } from '@airtable/blocks';
-import { Record, Table } from '@airtable/blocks/models';
+import { useCursor, useLoadable, useWatchable } from '@airtable/blocks/ui';
+import { Record } from '@airtable/blocks/models';
 import { RecordId } from '@airtable/blocks/types';
 import { docupilot_to_airtable_field_mapping } from './constants';
 
-export function getActiveTable(): Table {
-  const base = useBase();
-  // re-render whenever the active table or view changes
-  useWatchable(cursor, ['activeTableId', 'activeViewId']);
-  return base.getTableByIdIfExists(cursor.activeTableId);
-}
-
-export function getSelectedRecordIds(): Array<RecordId> {
+export function useSelectedRecordIds(): Array<RecordId> {
+  const cursor = useCursor();
   // load selected records
   useLoadable(cursor);
   // re-render whenever the list of selected records changes

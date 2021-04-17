@@ -8,12 +8,14 @@ import {
   Loader,
   Switch,
   Text,
+  useBase,
+  useCursor,
 } from '@airtable/blocks/ui';
 import { Field, FieldType, Record, Table } from '@airtable/blocks/models';
 import { SchemaComponent } from './schema';
 import { LoaderComponent } from './common';
 import { ImageIcon } from './images';
-import { getActiveTable, getMergedData } from './utils';
+import { getMergedData } from './utils';
 import { generateDocument, getTemplateSchema } from './apicallouts';
 import { Routes } from './routes';
 
@@ -43,7 +45,7 @@ function TemplateItem({ template, select }) {
   );
 }
 
-function TemplateMergeComponent({
+export function TemplateMergeComponent({
   selectedTemplate,
   selectedRecordIds,
   setRoute,
@@ -60,8 +62,9 @@ function TemplateMergeComponent({
   const [merge_in_progress, setMergeInProgress] = React.useState<boolean>(
     false,
   );
-
-  const active_table: Table = getActiveTable();
+  const base = useBase();
+  const cursor = useCursor();
+  const active_table: Table = base.getTable(cursor.activeTableId);
   const mapping: DocupilotAirtable.Mapping = {};
 
   function updateMapping(key: string, value: DocupilotAirtable.MappingValue) {
@@ -216,7 +219,7 @@ function TemplateMergeComponent({
   );
 }
 
-function TemplateListComponent({
+export function TemplateListComponent({
   templates,
   selectTemplate,
   refreshTemplates,
@@ -224,7 +227,9 @@ function TemplateListComponent({
   const [search_term, setSearchTerm] = React.useState<string>('');
   let filtered_templates: DocupilotAirtable.Template[] = !search_term
     ? templates
-    : templates.filter((_t) => _t.title.toLowerCase().includes(search_term));
+    : templates.filter((_t) =>
+        _t.title.toLowerCase().includes(search_term.toLowerCase()),
+      );
 
   const template_items = filtered_templates.map((template) => (
     <TemplateItem
@@ -260,34 +265,5 @@ function TemplateListComponent({
       />
       <dl>{template_items}</dl>
     </Box>
-  );
-}
-
-export function TemplateComponent({
-  templates,
-  refreshTemplates,
-  selected_template,
-  selectTemplate,
-  selected_record_ids,
-  setRoute,
-  setPageContext,
-}) {
-  if (selected_template) {
-    return (
-      <TemplateMergeComponent
-        selectedTemplate={selected_template}
-        selectedRecordIds={selected_record_ids}
-        setRoute={setRoute}
-        setPageContext={setPageContext}
-        openList={() => selectTemplate(null)}
-      />
-    );
-  }
-  return (
-    <TemplateListComponent
-      templates={templates}
-      selectTemplate={selectTemplate}
-      refreshTemplates={refreshTemplates}
-    />
   );
 }

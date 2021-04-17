@@ -1,4 +1,4 @@
-import { Box, Button, Loader, Text } from '@airtable/blocks/ui';
+import { Box, Button, Icon, Loader, Text } from '@airtable/blocks/ui';
 import React from 'react';
 import { ImageIcon } from './images';
 
@@ -84,6 +84,33 @@ export function LoaderComponent() {
       justifyContent="center"
     >
       <Loader scale={0.3} fillColor="#888" />
+    </Box>
+  );
+}
+
+export function GeneratedDocument({
+  key,
+  generatedDocument,
+}: {
+  key: number;
+  generatedDocument: DocupilotAirtable.GeneratedDocument;
+}) {
+  return (
+    <Box
+      key={key}
+      display="flex"
+      borderBottom="1px solid #E5E5E5"
+      paddingY="12px"
+    >
+      <Text flex="1" fontWeight="500" fontSize="14px" textColor="light">
+        {generatedDocument.airtable_record_name}
+      </Text>
+      <Box paddingX="12px" display="flex">
+        <Icon name="file" size={20} marginX="6px" />
+        <Text fontSize="12px" textColor="#B3B3B3">
+          {generatedDocument.file_name}
+        </Text>
+      </Box>
     </Box>
   );
 }
