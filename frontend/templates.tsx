@@ -61,7 +61,7 @@ export function TemplateListComponent({
         marginX="24px"
         marginY="12px"
         width="calc( 100% - 48px )"
-        // value={search_term}
+        value={search_term}
         placeholder="Search templates"
         onChange={(e) => setSearchTerm(e.target.value)}
       />

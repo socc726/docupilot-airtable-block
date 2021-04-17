@@ -16,6 +16,7 @@ import { ImageIcon } from './images';
 import { getMergedData } from './utils';
 import { generateDocument, getTemplateSchema } from './apicallouts';
 import { Routes } from './routes';
+import { globalConfig } from '@airtable/blocks';
 
 export function TemplateMergeComponent({
   selectedTemplate,
@@ -24,9 +25,17 @@ export function TemplateMergeComponent({
   setPageContext,
   openList,
 }) {
+  const base = useBase();
+  const cursor = useCursor();
   const [save_as_attachment, setSaveAsAttachment] = React.useState<boolean>(
     false,
   );
+
+  const getConfigPath = () => [
+    'mapping',
+    `table#${cursor.activeTableId}`,
+    `template#${selectedTemplate.id.toString()}`,
+  ];
   const [attachment_field, setAttachmentField] = React.useState<Field>(null);
   const [schema, setSchema] = React.useState<DocupilotAirtable.SchemaField[]>(
     null,
@@ -34,16 +43,16 @@ export function TemplateMergeComponent({
   const [merge_in_progress, setMergeInProgress] = React.useState<boolean>(
     false,
   );
-  const base = useBase();
-  const cursor = useCursor();
   const active_table: Table = base.getTable(cursor.activeTableId);
-  const mapping: DocupilotAirtable.Mapping = {};
+  const mapping: DocupilotAirtable.Mapping = JSON.parse(
+    (globalConfig.get(getConfigPath()) as string) || '{}',
+  ) as DocupilotAirtable.Mapping;
 
   function updateMapping(key: string, value: DocupilotAirtable.MappingValue) {
-    mapping[key] = value;
+    // mapping[key] = value;
   }
 
-  if (schema == null) {
+  if (!schema) {
     getTemplateSchema(selectedTemplate.id).then((response) => {
       if (response) {
         setSchema(response.data.schema);
@@ -100,6 +109,7 @@ export function TemplateMergeComponent({
         <SchemaComponent
           schema={schema}
           activeTable={active_table}
+          mapping={mapping}
           updateMapping={updateMapping}
         />
       ) : (
@@ -111,6 +121,14 @@ export function TemplateMergeComponent({
         variant="primary"
         disabled={!schema || merge_in_progress}
         onClick={() => {
+          globalConfig
+            .setPathsAsync([
+              {
+                path: getConfigPath(),
+                value: JSON.stringify(mapping),
+              },
+            ])
+            .then(() => console.log('saved to path'));
           setMergeInProgress(true);
           active_table
             .selectRecordsAsync()
