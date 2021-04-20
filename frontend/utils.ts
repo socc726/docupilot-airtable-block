@@ -20,7 +20,7 @@ async function mergeData(
   const airtable_field = mappingValue.__airtable_field__;
   const docupilot_type = mappingValue.__docupilot_type__;
 
-  if (airtable_field == null) {
+  if (airtable_field == null || airtable_field == '-') {
     return null;
   } else if (docupilot_type == 'string') {
     return record.getCellValueAsString(airtable_field);

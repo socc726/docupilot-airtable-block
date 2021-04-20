@@ -8,6 +8,7 @@ import {
   Text,
   useBase,
   useCursor,
+  useGlobalConfig,
 } from '@airtable/blocks/ui';
 import { Field, FieldType, Record, Table } from '@airtable/blocks/models';
 import { SchemaComponent } from './schema';
@@ -16,7 +17,6 @@ import { ImageIcon } from './images';
 import { getMergedData } from './utils';
 import { generateDocument, getTemplateSchema } from './apicallouts';
 import { Routes } from './routes';
-import { globalConfig } from '@airtable/blocks';
 
 export function TemplateMergeComponent({
   selectedTemplate,
@@ -27,30 +27,32 @@ export function TemplateMergeComponent({
 }) {
   const base = useBase();
   const cursor = useCursor();
-  const [save_as_attachment, setSaveAsAttachment] = React.useState<boolean>(
-    false,
-  );
+  const globalConfig = useGlobalConfig();
 
   const getConfigPath = () => [
     'mapping',
     `table#${cursor.activeTableId}`,
     `template#${selectedTemplate.id.toString()}`,
   ];
-  const [attachment_field, setAttachmentField] = React.useState<Field>(null);
+  const active_table: Table = base.getTable(cursor.activeTableId);
+  const mapping: DocupilotAirtable.Mapping = JSON.parse(
+    (globalConfig.get(getConfigPath()) as string) || '{}',
+  ) as DocupilotAirtable.Mapping;
+
+  const attachment_field_id = mapping['__attach_to__']?.__airtable_field__;
+  const [save_as_attachment, setSaveAsAttachment] = React.useState<boolean>(
+    !!attachment_field_id,
+  );
+
+  const [attachment_field, setAttachmentField] = React.useState<Field>(
+    active_table.getFieldByIdIfExists(attachment_field_id),
+  );
   const [schema, setSchema] = React.useState<DocupilotAirtable.SchemaField[]>(
     null,
   );
   const [merge_in_progress, setMergeInProgress] = React.useState<boolean>(
     false,
   );
-  const active_table: Table = base.getTable(cursor.activeTableId);
-  const mapping: DocupilotAirtable.Mapping = JSON.parse(
-    (globalConfig.get(getConfigPath()) as string) || '{}',
-  ) as DocupilotAirtable.Mapping;
-
-  function updateMapping(key: string, value: DocupilotAirtable.MappingValue) {
-    // mapping[key] = value;
-  }
 
   if (!schema) {
     getTemplateSchema(selectedTemplate.id).then((response) => {
@@ -59,6 +61,8 @@ export function TemplateMergeComponent({
       }
     });
   }
+
+  const canSetPaths = globalConfig.checkPermissionsForSetPaths().hasPermission;
 
   return (
     <Box padding="24px">
@@ -91,13 +95,14 @@ export function TemplateMergeComponent({
         <Switch
           size="large"
           backgroundColor="transparent"
+          disabled={!canSetPaths}
           value={save_as_attachment}
           label="Upload document to an attachment field"
           onChange={(newValue) => setSaveAsAttachment(newValue)}
         />
         <FieldPicker
           placeholder="Select field"
-          disabled={!save_as_attachment}
+          disabled={!canSetPaths || !save_as_attachment}
           shouldAllowPickingNone={true}
           table={active_table}
           field={attachment_field}
@@ -110,25 +115,30 @@ export function TemplateMergeComponent({
           schema={schema}
           activeTable={active_table}
           mapping={mapping}
-          updateMapping={updateMapping}
+          readonly={!canSetPaths}
         />
       ) : (
         <LoaderComponent />
       )}
-
       <Button
         width="100%"
         variant="primary"
         disabled={!schema || merge_in_progress}
         onClick={() => {
-          globalConfig
-            .setPathsAsync([
-              {
-                path: getConfigPath(),
-                value: JSON.stringify(mapping),
-              },
-            ])
-            .then(() => console.log('saved to path'));
+          if (canSetPaths) {
+            mapping['__attach_to__'] = {
+              __docupilot_type__: 'file',
+              __airtable_field__: attachment_field.id,
+            };
+            globalConfig
+              .setPathsAsync([
+                {
+                  path: getConfigPath(),
+                  value: JSON.stringify(mapping),
+                },
+              ])
+              .then(() => console.log('saved to path'));
+          }
           setMergeInProgress(true);
           active_table
             .selectRecordsAsync()
