@@ -30,21 +30,22 @@ export function TemplateMergeComponent({
   const cursor = useCursor();
   const globalConfig = useGlobalConfig();
 
-  const getConfigPath = () => [
-    'mapping',
+  const getConfigPath = (scope: string) => [
     `table#${cursor.activeTableId}`,
     `template#${selectedTemplate.id.toString()}`,
+    scope,
   ];
   const active_table: Table = base.getTable(cursor.activeTableId);
   const mapping: DocupilotAirtable.Mapping = JSON.parse(
-    (globalConfig.get(getConfigPath()) as string) || '{}',
+    (globalConfig.get(getConfigPath('mapping')) as string) || '{}',
   ) as DocupilotAirtable.Mapping;
 
-  const attachment_field_id = mapping['__attach_to__']?.__airtable_field__;
+  const attachment_field_id = globalConfig.get(
+    getConfigPath('attach'),
+  ) as string;
   const [save_as_attachment, setSaveAsAttachment] = React.useState<boolean>(
     !!attachment_field_id,
   );
-
   const [attachment_field, setAttachmentField] = React.useState<Field>(
     active_table.getFieldByIdIfExists(attachment_field_id),
   );
@@ -155,18 +156,15 @@ export function TemplateMergeComponent({
             return;
           }
           if (canSetPaths) {
-            mapping['__attach_to__'] =
-              save_as_attachment && attachment_field
-                ? {
-                    __docupilot_type__: 'file',
-                    __airtable_field__: attachment_field.id,
-                  }
-                : null;
             globalConfig
               .setPathsAsync([
                 {
-                  path: getConfigPath(),
+                  path: getConfigPath('mapping'),
                   value: JSON.stringify(mapping),
+                },
+                {
+                  path: getConfigPath('attach'),
+                  value: JSON.stringify(attachment_field?.id),
                 },
               ])
               .then(() => console.log('saved to path'));
