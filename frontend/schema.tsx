@@ -42,6 +42,20 @@ function defaultSelectedField({
   return fieldToReturn ?? dummyField;
 }
 
+function updateParentForChildren(fn, lookup_field) {
+  if (!fn) return;
+  // Timeout is required as the update shouldn't be triggered while CustomSelectField is still rendering
+  setTimeout(() => {
+    fn(
+      lookup_field
+        ? base.getTableByIdIfExists(
+            lookup_field.options.linkedTableId as string,
+          )
+        : null,
+    );
+  }, 0);
+}
+
 function CustomFieldPicker({
   docupilot_field_name,
   table,
@@ -72,6 +86,7 @@ function CustomFieldPicker({
   if (readonly) {
     const selected_readonly_field =
       table?.getFieldByIdIfExists(value) ?? dummyField;
+    updateParentForChildren(updateLinkedTable, selected_readonly_field);
     return (
       <Select
         width={width}
@@ -114,18 +129,7 @@ function CustomFieldPicker({
   }
 
   onSelection(selected_field.id);
-  if (updateLinkedTable != null) {
-    // Timeout is required as the update shouldn't be triggered while CustomSelectField is still rendering
-    setTimeout(() => {
-      updateLinkedTable(
-        selected_field
-          ? base.getTableByIdIfExists(
-              selected_field.options.linkedTableId as string,
-            )
-          : null,
-      );
-    }, 0);
-  }
+  updateParentForChildren(updateLinkedTable, selected_field);
 
   return (
     <Select
