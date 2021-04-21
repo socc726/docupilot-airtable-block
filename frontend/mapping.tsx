@@ -8,6 +8,7 @@ import {
   Text,
   useBase,
   useCursor,
+  colors,
   useGlobalConfig,
 } from '@airtable/blocks/ui';
 import { Field, FieldType, Record, Table } from '@airtable/blocks/models';
@@ -54,6 +55,20 @@ export function TemplateMergeComponent({
     false,
   );
 
+  const canSetPaths = globalConfig.checkPermissionsForSetPaths().hasPermission;
+
+  // if configured to save as attachment and user doesn't have editor permission
+  //  merge shouldn't be allowed
+  const canMerge =
+    !save_as_attachment || globalConfig.checkPermissionsForSet().hasPermission;
+
+  const [error, setError] = React.useState<string>(
+    canMerge
+      ? null
+      : `You need editor or higher permissions to create this document
+        as it requires to be attached to the field "${attachment_field.name}"`,
+  );
+
   if (!schema) {
     getTemplateSchema(selectedTemplate.id).then((response) => {
       if (response) {
@@ -61,8 +76,6 @@ export function TemplateMergeComponent({
       }
     });
   }
-
-  const canSetPaths = globalConfig.checkPermissionsForSetPaths().hasPermission;
 
   return (
     <Box padding="24px">
@@ -107,7 +120,10 @@ export function TemplateMergeComponent({
           table={active_table}
           field={attachment_field}
           allowedTypes={[FieldType.MULTIPLE_ATTACHMENTS]}
-          onChange={(newField) => setAttachmentField(newField)}
+          onChange={(newField) => {
+            setAttachmentField(newField);
+            setError(null);
+          }}
         />
       </Box>
       {schema ? (
@@ -120,16 +136,32 @@ export function TemplateMergeComponent({
       ) : (
         <LoaderComponent />
       )}
+      {error ? (
+        <Box display={'flex'} justifyContent={'center'} alignItems={'center'}>
+          <Text alignContent={'center'} textColor={colors.RED}>
+            {error}
+          </Text>
+        </Box>
+      ) : (
+        <></>
+      )}
       <Button
         width="100%"
         variant="primary"
-        disabled={!schema || merge_in_progress}
+        disabled={!schema || merge_in_progress || !canMerge}
         onClick={() => {
+          if (save_as_attachment && !attachment_field) {
+            setError('Upload field not selected');
+            return;
+          }
           if (canSetPaths) {
-            mapping['__attach_to__'] = {
-              __docupilot_type__: 'file',
-              __airtable_field__: attachment_field.id,
-            };
+            mapping['__attach_to__'] =
+              save_as_attachment && attachment_field
+                ? {
+                    __docupilot_type__: 'file',
+                    __airtable_field__: attachment_field.id,
+                  }
+                : null;
             globalConfig
               .setPathsAsync([
                 {
