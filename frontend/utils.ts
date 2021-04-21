@@ -2,6 +2,8 @@ import { useCursor, useLoadable, useWatchable } from '@airtable/blocks/ui';
 import { Record } from '@airtable/blocks/models';
 import { RecordId } from '@airtable/blocks/types';
 import { docupilot_to_airtable_field_mapping } from './constants';
+import { globalConfig } from '@airtable/blocks';
+import { generateDocument } from './apicallouts';
 
 export function useSelectedRecordIds(): Array<RecordId> {
   const cursor = useCursor();
@@ -14,6 +16,7 @@ export function useSelectedRecordIds(): Array<RecordId> {
 }
 
 async function mergeData(
+  key: string,
   mappingValue: DocupilotAirtable.MappingValue,
   record: Record,
 ) {
@@ -28,17 +31,17 @@ async function mergeData(
 
   if (mappingValue.fields != null) {
     const data_list = [];
-    const linked_query = await record.selectLinkedRecordsFromCellAsync(
+    const linked_query_result = await record.selectLinkedRecordsFromCellAsync(
       airtable_field,
     );
     const linked_records =
       docupilot_type == 'object'
-        ? linked_query.records.slice(0, 1)
-        : linked_query.records;
+        ? linked_query_result.records.slice(0, 1)
+        : linked_query_result.records;
     for (const linked_record of linked_records) {
       const data = {};
       for (const [key, value] of Object.entries(mappingValue.fields)) {
-        const child_merged_data = await mergeData(value, linked_record);
+        const child_merged_data = await mergeData(key, value, linked_record);
         if (child_merged_data != null) {
           data[key] = child_merged_data;
         }
@@ -47,7 +50,7 @@ async function mergeData(
         data_list.push(data);
       }
     }
-    linked_query.unloadData();
+    linked_query_result.unloadData();
     return docupilot_type == 'object'
       ? data_list[0]
       : data_list.length
@@ -65,7 +68,7 @@ export async function getMergedData(
   const data = {};
 
   for (const [key, value] of Object.entries(mapping)) {
-    const merged_data = await mergeData(value, record);
+    const merged_data = await mergeData(key, value, record);
     if (merged_data != null) {
       data[key] = merged_data;
     }
@@ -80,4 +83,69 @@ export function selectAllowedTypes(
     return docupilot_to_airtable_field_mapping[schema_field.generics];
   }
   return docupilot_to_airtable_field_mapping[schema_field.type];
+}
+
+function getConfigPath(tableId: string, templateId: string, scope: string) {
+  return [`table#${tableId}`, `template#${templateId.toString()}`, scope];
+}
+
+export function loadMapping(
+  tableId: string,
+  templateId: string,
+): { mapping: DocupilotAirtable.Mapping; attachment_field_id: string } {
+  const mapping = JSON.parse(
+    (globalConfig.get(
+      getConfigPath(tableId, templateId, 'mapping'),
+    ) as string) || '{}',
+  ) as DocupilotAirtable.Mapping;
+  const attachment_field_id = globalConfig.get(
+    getConfigPath(tableId, templateId, 'attach'),
+  ) as string;
+  return { mapping, attachment_field_id };
+}
+
+export function saveMapping(
+  tableId: string,
+  templateId: string,
+  mapping: DocupilotAirtable.Mapping,
+  attachment_field_id: string,
+) {
+  globalConfig
+    .setPathsAsync([
+      {
+        path: getConfigPath(tableId, templateId, 'mapping'),
+        value: JSON.stringify(mapping),
+      },
+      {
+        path: getConfigPath(tableId, templateId, 'attach'),
+        value: attachment_field_id,
+      },
+    ])
+    .then(() => console.info('mapping saved'));
+}
+
+export async function executeDocumentGeneration({
+  query,
+  selectedRecordIds,
+  attachment_field,
+  mapping,
+  selectedTemplate,
+}): Promise<{ [key: string]: DocupilotAirtable.GeneratedDocument }> {
+  let generateDocuments = {};
+  const promises = selectedRecordIds.map(async (record_id) => {
+    const record: Record = query.getRecordById(record_id);
+    const merged_data = await getMergedData(mapping, record);
+    const response = await generateDocument(
+      selectedTemplate.id,
+      merged_data,
+      !!attachment_field,
+    );
+    generateDocuments[record.id] = {
+      record_name: record.name,
+      file_name: response.data.file_name,
+      url: attachment_field ? response.data.file_url : null,
+    };
+  });
+  await Promise.all(promises);
+  return generateDocuments;
 }

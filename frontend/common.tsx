@@ -1,6 +1,7 @@
 import { Box, Button, Icon, Loader, Text } from '@airtable/blocks/ui';
 import React from 'react';
 import { ImageIcon } from './images';
+import { DocupilotAirtable } from './types';
 
 export function WrapperComponent({
   child_component,
@@ -88,25 +89,20 @@ export function LoaderComponent() {
   );
 }
 
-export function GeneratedDocument({
-  generatedDocument,
+export function GeneratedDocumentRow({
+  document,
 }: {
-  generatedDocument: DocupilotAirtable.GeneratedDocument;
+  document: DocupilotAirtable.GeneratedDocument;
 }) {
   return (
-    <Box
-      key={generatedDocument.airtable_record_name}
-      display="flex"
-      borderBottom="1px solid #E5E5E5"
-      paddingY="12px"
-    >
+    <Box display="flex" borderBottom="1px solid #E5E5E5" paddingY="12px">
       <Text flex="1" fontWeight="500" fontSize="14px" textColor="light">
-        {generatedDocument.airtable_record_name}
+        {document.record_name}
       </Text>
       <Box paddingX="12px" display="flex">
         <Icon name="file" size={20} marginX="6px" />
         <Text fontSize="12px" textColor="#B3B3B3">
-          {generatedDocument.file_name}
+          {document.file_name}
         </Text>
       </Box>
     </Box>

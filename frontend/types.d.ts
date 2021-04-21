@@ -25,7 +25,8 @@ declare namespace DocupilotAirtable {
     org: string;
   }
   interface GeneratedDocument {
-    airtable_record_name: string;
+    record_name: string;
     file_name: string;
+    url?: string;
   }
 }

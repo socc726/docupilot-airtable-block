@@ -4,7 +4,7 @@ import { useSelectedRecordIds } from './utils';
 import { getTemplates } from './apicallouts';
 import { TemplateMergeComponent } from './mapping';
 import { TemplateListComponent } from './templates';
-import { GeneratedDocument, LoaderComponent } from './common';
+import { GeneratedDocumentRow, LoaderComponent } from './common';
 import {
   MergeFailInfo,
   MergeSuccessInfo,
@@ -15,7 +15,7 @@ import { Routes } from './routes';
 
 export function MainComponent() {
   const [route, setRoute] = React.useState<Routes>(Routes.templatesList);
-  const [page_context, setPageContext] = React.useState<
+  const [generated_documents, setGeneratedDocuments] = React.useState<
     DocupilotAirtable.GeneratedDocument[]
   >([]);
   const [templates, setTemplates] = React.useState<
@@ -57,7 +57,7 @@ export function MainComponent() {
           selectedTemplate={selected_template}
           selectedRecordIds={selected_record_ids}
           setRoute={setRoute}
-          setPageContext={setPageContext}
+          setGeneratedDocuments={setGeneratedDocuments}
           openList={() => {
             setSelectedTemplate(null);
             setRoute(Routes.templatesList);
@@ -67,8 +67,11 @@ export function MainComponent() {
     case Routes.mergeSuccess:
       return (
         <MergeSuccessInfo
-          merge_context={(page_context || []).map((c, index) => (
-            <GeneratedDocument generatedDocument={c} />
+          merge_context={(generated_documents || []).map((document) => (
+            <GeneratedDocumentRow
+              document={document}
+              key={document.record_name}
+            />
           ))}
           setSelectedTemplate={setSelectedTemplate}
           setRoute={setRoute}

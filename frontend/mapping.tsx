@@ -2,47 +2,39 @@ import React from 'react';
 import {
   Box,
   Button,
+  colors,
   FieldPicker,
   Loader,
   Switch,
   Text,
   useBase,
   useCursor,
-  colors,
   useGlobalConfig,
 } from '@airtable/blocks/ui';
 import { Field, FieldType, Record, Table } from '@airtable/blocks/models';
 import { SchemaComponent } from './schema';
 import { LoaderComponent } from './common';
 import { ImageIcon } from './images';
-import { getMergedData } from './utils';
-import { generateDocument, getTemplateSchema } from './apicallouts';
+import { executeDocumentGeneration, loadMapping, saveMapping } from './utils';
+import { getTemplateSchema } from './apicallouts';
 import { Routes } from './routes';
 
 export function TemplateMergeComponent({
   selectedTemplate,
   selectedRecordIds,
   setRoute,
-  setPageContext,
+  setGeneratedDocuments,
   openList,
 }) {
   const base = useBase();
   const cursor = useCursor();
   const globalConfig = useGlobalConfig();
 
-  const getConfigPath = (scope: string) => [
-    `table#${cursor.activeTableId}`,
-    `template#${selectedTemplate.id.toString()}`,
-    scope,
-  ];
   const active_table: Table = base.getTable(cursor.activeTableId);
-  const mapping: DocupilotAirtable.Mapping = JSON.parse(
-    (globalConfig.get(getConfigPath('mapping')) as string) || '{}',
-  ) as DocupilotAirtable.Mapping;
-
-  const attachment_field_id = globalConfig.get(
-    getConfigPath('attach'),
-  ) as string;
+  const { mapping, attachment_field_id } = loadMapping(
+    cursor.activeTableId,
+    selectedTemplate.id.toString(),
+  );
   const [save_as_attachment, setSaveAsAttachment] = React.useState<boolean>(
     !!attachment_field_id,
   );
@@ -150,85 +142,60 @@ export function TemplateMergeComponent({
         width="100%"
         variant="primary"
         disabled={!schema || merge_in_progress || !canMerge}
-        onClick={() => {
+        onClick={async () => {
           if (save_as_attachment && !attachment_field) {
             setError('Upload field not selected');
             return;
           }
           if (canSetPaths) {
-            globalConfig
-              .setPathsAsync([
-                {
-                  path: getConfigPath('mapping'),
-                  value: JSON.stringify(mapping),
-                },
-                {
-                  path: getConfigPath('attach'),
-                  value: JSON.stringify(attachment_field?.id),
-                },
-              ])
-              .then(() => console.log('saved to path'));
+            saveMapping(
+              cursor.activeTableId,
+              selectedTemplate.id.toString(),
+              mapping,
+              attachment_field?.id,
+            );
           }
           setMergeInProgress(true);
-          active_table
-            .selectRecordsAsync()
-            .then((query) => {
-              let merged_record_count = 0;
-              let success_context: DocupilotAirtable.GeneratedDocument[] = [];
-              selectedRecordIds.forEach((record_id) => {
-                const record: Record = query.getRecordById(record_id);
-                const record_name: string = record.name;
-                // @ts-ignore
-                const attachments: Array<{ url: string; filename: string }> =
-                  (attachment_field && record.getCellValue(attachment_field)) ||
-                  [];
-                getMergedData(mapping, record)
-                  .then((merged_data) => {
-                    generateDocument(
-                      selectedTemplate.id,
-                      merged_data,
-                      save_as_attachment,
-                    )
-                      .then((response) => {
-                        merged_record_count++;
-                        if (save_as_attachment && attachment_field) {
-                          attachments.push({
-                            url: response.data.file_url,
-                            filename: response.data.file_name,
-                          });
-                          success_context.push({
-                            airtable_record_name: record_name,
-                            file_name: response.data.file_name,
-                          });
-                          active_table.updateRecordAsync(record, {
-                            [attachment_field.id]: attachments,
-                          });
-                        }
-                        if (merged_record_count == selectedRecordIds.length) {
-                          setMergeInProgress(false);
-                          setPageContext(success_context);
-                          setRoute(Routes.mergeSuccess);
-                        }
-                      })
-                      .catch((error) => {
-                        console.log('error in generateDocument :: ', error);
-                        setMergeInProgress(false);
-                        setRoute(Routes.mergeFail);
-                      });
-                  })
-                  .catch((error) => {
-                    console.log('error in getMergedData :: ', error);
-                    setMergeInProgress(false);
-                    setRoute(Routes.mergeFail);
-                  });
-              });
-              query.unloadData();
-            })
-            .catch((error) => {
-              console.log('error listening to table selection :: ', error);
-              setMergeInProgress(false);
-              setRoute(Routes.mergeFail);
+          const queryResult = await active_table.selectRecordsAsync();
+          try {
+            const generatedDocuments = await executeDocumentGeneration({
+              query: queryResult,
+              attachment_field: save_as_attachment ? attachment_field : null,
+              selectedRecordIds: selectedRecordIds,
+              mapping: mapping,
+              selectedTemplate: selectedTemplate,
             });
+            if (save_as_attachment) {
+              for (let record_id of selectedRecordIds) {
+                const record: Record = queryResult.getRecordById(record_id);
+                // @ts-ignore
+                const attachments: {
+                  url: string;
+                  filename: string;
+                }[] =
+                  (attachment_field
+                    ? record.getCellValue(attachment_field)
+                    : []) ?? [];
+                const generated_document = generatedDocuments[record.id];
+                attachments.push({
+                  url: generated_document.url,
+                  filename: generated_document.file_name,
+                });
+                await active_table.updateRecordAsync(record, {
+                  [attachment_field.id]: attachments,
+                });
+              }
+            }
+            setMergeInProgress(false);
+            setGeneratedDocuments(Object.values(generatedDocuments));
+            setRoute(Routes.mergeSuccess);
+          } catch (error) {
+            console.error('error generating document :: ', error);
+            setMergeInProgress(false);
+            setRoute(Routes.mergeFail);
+          } finally {
+            queryResult.unloadData();
+          }
         }}
       >
         {merge_in_progress ? (

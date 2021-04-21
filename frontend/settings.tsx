@@ -166,7 +166,7 @@ export function SettingsComponent({ onConnect }) {
               }
             })
             .catch((error) => {
-              console.log(error);
+              console.error(error);
               setError('Invalid API Key');
             });
         }}
