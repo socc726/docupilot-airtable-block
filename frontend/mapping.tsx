@@ -44,9 +44,7 @@ export function TemplateMergeComponent({
   const [schema, setSchema] = React.useState<DocupilotAirtable.SchemaField[]>(
     null,
   );
-  const [merge_in_progress, setMergeInProgress] = React.useState<boolean>(
-    false,
-  );
+  const [documents_merged, setDocumentsMerged] = React.useState<number>(null);
 
   const canSetPaths = globalConfig.checkPermissionsForSetPaths().hasPermission;
 
@@ -141,7 +139,7 @@ export function TemplateMergeComponent({
       <Button
         width="100%"
         variant="primary"
-        disabled={!schema || merge_in_progress || !canMerge}
+        disabled={!schema || documents_merged != null || !canMerge}
         onClick={async () => {
           if (save_as_attachment && !attachment_field) {
             setError('Upload field not selected');
@@ -155,18 +153,25 @@ export function TemplateMergeComponent({
               attachment_field?.id,
             );
           }
-          setMergeInProgress(true);
+          setDocumentsMerged(0);
           const queryResult = await active_table.selectRecordsAsync();
           try {
             const generatedDocuments = await executeDocumentGeneration({
               query: queryResult,
               attachment_field: save_as_attachment ? attachment_field : null,
-              selectedRecordIds: selectedRecordIds,
+              selectedRecordIds: selectedRecordIds.slice(),
               mapping: mapping,
               selectedTemplate: selectedTemplate,
+              onProgress: setDocumentsMerged,
             });
+            console.log(
+              'save_as_attachment',
+              save_as_attachment,
+              selectedRecordIds,
+            );
             if (save_as_attachment) {
               for (let record_id of selectedRecordIds) {
+                console.log('attaching to', record_id, generatedDocuments);
                 const record: Record = queryResult.getRecordById(record_id);
                 // @ts-ignore
                 const attachments: {
@@ -186,20 +191,31 @@ export function TemplateMergeComponent({
                 });
               }
             }
-            setMergeInProgress(false);
+            setDocumentsMerged(null);
             setGeneratedDocuments(Object.values(generatedDocuments));
             setRoute(Routes.mergeSuccess);
           } catch (error) {
             console.error('error generating document :: ', error);
-            setMergeInProgress(false);
+            setDocumentsMerged(null);
             setRoute(Routes.mergeFail);
           } finally {
             queryResult.unloadData();
           }
         }}
       >
-        {merge_in_progress ? (
-          <Loader scale={0.3} fillColor="#fff" />
+        {documents_merged != null ? (
+          <Box display="flex">
+            <Loader scale={0.3} fillColor="#fff" />
+            <Text
+              fontWeight="500"
+              fontSize="14px"
+              lineHeight="17px"
+              textColor="white"
+              marginLeft="12px"
+            >
+              Generating {documents_merged}/{selectedRecordIds.length} documents
+            </Text>
+          </Box>
         ) : (
           <Text
             fontWeight="500"

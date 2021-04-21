@@ -11,7 +11,11 @@ import { ImageIcon } from './images';
 loadCSSFromString(`
 .generated-document:not(:last-child) {
     border-bottom: 1px solid #E5E5E5;
-}`);
+}
+.generated-document:first-child {
+    border-bottom: 1px solid #E5E5E5 !important;
+}
+`);
 
 export function WrapperComponent({
   child_component,

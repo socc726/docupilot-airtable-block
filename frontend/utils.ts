@@ -130,22 +130,35 @@ export async function executeDocumentGeneration({
   attachment_field,
   mapping,
   selectedTemplate,
+  onProgress,
 }): Promise<{ [key: string]: DocupilotAirtable.GeneratedDocument }> {
   let generateDocuments = {};
-  const promises = selectedRecordIds.map(async (record_id) => {
-    const record: Record = query.getRecordById(record_id);
-    const merged_data = await getMergedData(mapping, record);
-    const response = await generateDocument(
-      selectedTemplate.id,
-      merged_data,
-      !!attachment_field,
-    );
-    generateDocuments[record.id] = {
-      record_name: record.name,
-      file_name: response.data.file_name,
-      url: attachment_field ? response.data.file_url : null,
-    };
-  });
-  await Promise.all(promises);
+
+  // splitting into to batches of 5 records
+  let batches = [];
+  while (selectedRecordIds.length) {
+    batches.push(selectedRecordIds.splice(0, 5));
+  }
+
+  // iterating each batch
+  for (let batch of batches) {
+    const promises = batch.map(async (record_id) => {
+      const record: Record = query.getRecordById(record_id);
+      const merged_data = await getMergedData(mapping, record);
+      const response = await generateDocument(
+        selectedTemplate.id,
+        merged_data,
+        !!attachment_field,
+      );
+      generateDocuments[record.id] = {
+        record_name: record.name,
+        file_name: response.data.file_name,
+        url: attachment_field ? response.data.file_url : null,
+      };
+      onProgress(Object.keys(generateDocuments).length);
+    });
+    // waiting for batch to finish
+    await Promise.all(promises);
+  }
   return generateDocuments;
 }
