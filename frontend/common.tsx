@@ -1,7 +1,17 @@
-import { Box, Button, Icon, Loader, Text } from '@airtable/blocks/ui';
+import {
+  Box,
+  Button,
+  loadCSSFromString,
+  Loader,
+  Text,
+} from '@airtable/blocks/ui';
 import React from 'react';
 import { ImageIcon } from './images';
-import { DocupilotAirtable } from './types';
+
+loadCSSFromString(`
+.generated-document:not(:last-child) {
+    border-bottom: 1px solid #E5E5E5;
+}`);
 
 export function WrapperComponent({
   child_component,
@@ -95,12 +105,21 @@ export function GeneratedDocumentRow({
   document: DocupilotAirtable.GeneratedDocument;
 }) {
   return (
-    <Box display="flex" borderBottom="1px solid #E5E5E5" paddingY="12px">
+    <Box className="generated-document" display="flex" paddingY="12px">
       <Text flex="1" fontWeight="500" fontSize="14px" textColor="light">
         {document.record_name}
       </Text>
-      <Box paddingX="12px" display="flex">
-        <Icon name="file" size={20} marginX="6px" />
+      <Box paddingX="12px" position="relative">
+        <Box
+          style={{
+            transform: 'scale(0.7)',
+            position: 'absolute',
+            left: '-16px',
+            top: '-9px',
+          }}
+        >
+          <ImageIcon name={document.file_name.split('.').pop()} />
+        </Box>
         <Text fontSize="12px" textColor="#B3B3B3">
           {document.file_name}
         </Text>
