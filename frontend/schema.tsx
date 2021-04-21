@@ -159,8 +159,8 @@ function MappingComponent({
   const has_child = docupilot_field.fields != null;
   if (!mapping[docupilot_field.name]) {
     mapping[docupilot_field.name] = {
-      __airtable_field__: null,
-      __docupilot_type__: docupilot_field.type,
+      af: null,
+      dt: docupilot_field.type,
     };
   }
   let mapping_value: DocupilotAirtable.MappingValue =
@@ -173,9 +173,9 @@ function MappingComponent({
       <CustomFieldPicker
         docupilot_field_name={docupilot_field.name}
         table={table}
-        value={mapping_value.__airtable_field__}
+        value={mapping_value.af}
         onSelection={(newValue) => {
-          mapping_value.__airtable_field__ = newValue;
+          mapping_value.af = newValue;
         }}
         allowed_field_types={selectAllowedTypes(docupilot_field)}
         updateLinkedTable={has_child ? setLinkedTable : null}

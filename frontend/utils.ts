@@ -20,8 +20,8 @@ async function mergeData(
   mappingValue: DocupilotAirtable.MappingValue,
   record: Record,
 ) {
-  const airtable_field = mappingValue.__airtable_field__;
-  const docupilot_type = mappingValue.__docupilot_type__;
+  const airtable_field = mappingValue.af;
+  const docupilot_type = mappingValue.dt;
 
   if (airtable_field == null || airtable_field == '-') {
     return null;
@@ -29,7 +29,7 @@ async function mergeData(
     return record.getCellValueAsString(airtable_field);
   }
 
-  if (mappingValue.fields != null) {
+  if (mappingValue.fs != null) {
     const data_list = [];
     const linked_query_result = await record.selectLinkedRecordsFromCellAsync(
       airtable_field,
@@ -40,7 +40,7 @@ async function mergeData(
         : linked_query_result.records;
     for (const linked_record of linked_records) {
       const data = {};
-      for (const [key, value] of Object.entries(mappingValue.fields)) {
+      for (const [key, value] of Object.entries(mappingValue.fs)) {
         const child_merged_data = await mergeData(key, value, linked_record);
         if (child_merged_data != null) {
           data[key] = child_merged_data;

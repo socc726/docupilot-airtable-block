@@ -12,9 +12,9 @@ declare namespace DocupilotAirtable {
     generics?: string;
   }
   interface MappingValue {
-    __airtable_field__?: string;
-    __docupilot_type__: string;
-    fields?: Mapping;
+    af?: string; // airtable field
+    dt: string; // docupilot token type
+    fs?: Mapping; // fields
   }
   interface Mapping {
     [key: string]: MappingValue;
