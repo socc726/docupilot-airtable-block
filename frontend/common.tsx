@@ -89,15 +89,13 @@ export function LoaderComponent() {
 }
 
 export function GeneratedDocument({
-  index,
   generatedDocument,
 }: {
-  index: number;
   generatedDocument: DocupilotAirtable.GeneratedDocument;
 }) {
   return (
     <Box
-      key={index}
+      key={generatedDocument.airtable_record_name}
       display="flex"
       borderBottom="1px solid #E5E5E5"
       paddingY="12px"

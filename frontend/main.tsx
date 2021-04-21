@@ -68,7 +68,7 @@ export function MainComponent() {
       return (
         <MergeSuccessInfo
           merge_context={(page_context || []).map((c, index) => (
-            <GeneratedDocument generatedDocument={c} index={index} />
+            <GeneratedDocument generatedDocument={c} />
           ))}
           setSelectedTemplate={setSelectedTemplate}
           setRoute={setRoute}
