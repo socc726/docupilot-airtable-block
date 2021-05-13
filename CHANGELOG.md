@@ -1,4 +1,6 @@
-[1.0.0-beta.1] - 2021-05-14
+# Changelog
+
+### [1.0.0-beta.1] - 2021-05-14
 
 Initial release with following features:
 
