@@ -154,6 +154,12 @@ function MappingComponent({
   table,
   readonly,
   level = 0,
+}: {
+  docupilot_field: DocupilotAirtable.SchemaField;
+  table: Table;
+  mapping: DocupilotAirtable.Mapping;
+  readonly: boolean;
+  level?: number;
 }) {
   const [linked_table, setLinkedTable] = React.useState(null);
   const has_child = docupilot_field.fields != null;
@@ -185,8 +191,8 @@ function MappingComponent({
   );
   let child_components;
   if (has_child) {
-    if (!mapping[docupilot_field.name].fields) {
-      mapping[docupilot_field.name].fields = {};
+    if (!mapping[docupilot_field.name].fs) {
+      mapping[docupilot_field.name].fs = {};
     }
     child_components = docupilot_field.fields.map((child_field, index) => {
       return (
@@ -196,7 +202,7 @@ function MappingComponent({
           table={linked_table}
           level={level + 1}
           readonly={readonly}
-          mapping={mapping[docupilot_field.name].fields}
+          mapping={mapping[docupilot_field.name].fs}
         />
       );
     });

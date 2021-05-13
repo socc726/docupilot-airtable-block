@@ -58,6 +58,12 @@ async function mergeData(
       : null;
   }
 
+  console.warn(
+    "getting cell value directly as it didn't match any known type",
+    key,
+    mappingValue,
+    record,
+  );
   return record.getCellValue(airtable_field);
 }
 

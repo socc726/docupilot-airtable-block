@@ -164,14 +164,8 @@ export function TemplateMergeComponent({
               selectedTemplate: selectedTemplate,
               onProgress: setDocumentsMerged,
             });
-            console.log(
-              'save_as_attachment',
-              save_as_attachment,
-              selectedRecordIds,
-            );
             if (save_as_attachment) {
               for (let record_id of selectedRecordIds) {
-                console.log('attaching to', record_id, generatedDocuments);
                 const record: Record = queryResult.getRecordById(record_id);
                 // @ts-ignore
                 const attachments: {
