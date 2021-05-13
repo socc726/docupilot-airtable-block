@@ -20,15 +20,11 @@ Follow instructions in setup page to add necessary credentials and click "Connec
 
 ### Field - Token mapping
 
-![Select Record](screenshots/3-select.png)
-
 On selecting at-least one record from current table, Docupilot templates will be listed in Docupilot's airtable app.
 
-![Search](screenshots/4-search.png)
+![Search](screenshots/search.mov)
 
 Search for the template required to generate document(s) with selected record(s).
-
-![Mapping](screenshots/5-mapping.png)
 
 A mapping page will be shown where Docupilot's Template Tokens can be mapped with Airtable's Fields.
 
@@ -39,7 +35,7 @@ Before generating a document using a template with a given table for the first t
 2. remove all underscores `_`
 3. remove all blank spaces ` `
 
-![AutoMapping](screenshots/6-auto-mapping.png)
+![AutoMapping & NestedRecords](screenshots/automapper-nested.mov)
 
 If any fields are not filled by automapping, they can be manually picked.
 
@@ -78,13 +74,11 @@ Category | Name | Unit Price | Quantity | Amount
 
 Generated document can be uploaded to an attachment field, if available, in the source table respectively against source records.
 
-![UploadToAttachment](screenshots/5-mapping.png)
-
 **Upload document to an attachment field** preference is also sticky and will be stored across different generations.
 
 ### Generating documents
 
-![Generating](screenshots/8-generating.png)
+![Generating](screenshots/generating.mov)
 
 Once mapping is complete, clicking on "Create n documents" will start the document creation process.
 
