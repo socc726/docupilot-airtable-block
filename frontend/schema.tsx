@@ -26,7 +26,7 @@ function defaultSelectedField({
 }): Field {
   // if (defaultFieldId == dummyField.id) return dummyField;
   function _formatField(name: string): string {
-    return name.toLowerCase().replace('_', '').replace(' ', '').toLowerCase();
+    return name.toLowerCase().replace(/_/g, '').replace(/\s/g, '');
   }
   docupilot_field_name = _formatField(docupilot_field_name);
   if (!allowed_fields) return null;
