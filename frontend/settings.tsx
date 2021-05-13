@@ -1,4 +1,5 @@
 import React from 'react';
+import { version } from '../package.json';
 import {
   Box,
   Button,
@@ -107,6 +108,11 @@ function APIKeyComponent({ apikey, error, saveAPI }) {
         ) : (
           <TextButton onClick={() => setEditMode(true)}>Change</TextButton>
         )}
+      </Box>
+      <Box marginTop="16px" marginBottom="16px">
+        <Text size="small" textColor="light" textAlign="center">
+          Version {version}
+        </Text>
       </Box>
     </Box>
   );
