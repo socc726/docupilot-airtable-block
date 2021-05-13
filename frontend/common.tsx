@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Link,
   loadCSSFromString,
   Loader,
   Text,
@@ -113,7 +114,14 @@ export function GeneratedDocumentRow({
       <Text flex="1" fontWeight="500" fontSize="14px" textColor="light">
         {document.record_name}
       </Text>
-      <Box paddingX="12px" position="relative">
+      <Box
+        paddingX="12px"
+        position="relative"
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+        }}
+      >
         <Box
           style={{
             transform: 'scale(0.7)',
@@ -127,6 +135,21 @@ export function GeneratedDocumentRow({
         <Text fontSize="12px" textColor="#B3B3B3">
           {document.file_name}
         </Text>
+        {document.url ? (
+          // @ts-ignore
+          //  ignoring this as Link needs a mandatory child, against AirTable docs
+          <Link
+            style={{
+              paddingLeft: '4px',
+            }}
+            href={document.url}
+            target="_blank"
+            icon="download"
+            aria-label={`Download ${document.file_name}`}
+          />
+        ) : (
+          <></>
+        )}
       </Box>
     </Box>
   );
