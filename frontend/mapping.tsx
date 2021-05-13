@@ -128,7 +128,12 @@ export function TemplateMergeComponent({
         <LoaderComponent />
       )}
       {error ? (
-        <Box display={'flex'} justifyContent={'center'} alignItems={'center'}>
+        <Box
+          display={'flex'}
+          justifyContent={'center'}
+          alignItems={'center'}
+          paddingBottom={'4px'}
+        >
           <Text alignContent={'center'} textColor={colors.RED}>
             {error}
           </Text>
@@ -142,7 +147,7 @@ export function TemplateMergeComponent({
         disabled={!schema || documents_merged != null || !canMerge}
         onClick={async () => {
           if (save_as_attachment && !attachment_field) {
-            setError('Upload field not selected');
+            setError('"Upload to" field is not selected');
             return;
           }
           if (canSetPaths) {
@@ -150,7 +155,7 @@ export function TemplateMergeComponent({
               cursor.activeTableId,
               selectedTemplate.id.toString(),
               mapping,
-              attachment_field?.id,
+              save_as_attachment ? attachment_field?.id : null,
             );
           }
           setDocumentsMerged(0);
