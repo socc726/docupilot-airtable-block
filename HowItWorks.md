@@ -22,7 +22,7 @@ Follow instructions in setup page to add necessary credentials and click "Connec
 
 On selecting at-least one record from current table, Docupilot templates will be listed in Docupilot's airtable app.
 
-![Search](screenshots/search.mov)
+![Search](screenshots/3-search.gif)
 
 Search for the template required to generate document(s) with selected record(s).
 
@@ -35,7 +35,7 @@ Before generating a document using a template with a given table for the first t
 2. remove all underscores `_`
 3. remove all blank spaces ` `
 
-![AutoMapping & NestedRecords](screenshots/automapper-nested.mov)
+![AutoMapping & NestedRecords](screenshots/6-automapper-nested.gif)
 
 If any fields are not filled by automapping, they can be manually picked.
 
@@ -78,7 +78,7 @@ Generated document can be uploaded to an attachment field, if available, in the 
 
 ### Generating documents
 
-![Generating](screenshots/generating.mov)
+![Generating](screenshots/8-generating.gif)
 
 Once mapping is complete, clicking on "Create n documents" will start the document creation process.
 
@@ -87,6 +87,7 @@ Once mapping is complete, clicking on "Create n documents" will start the docume
 
 ### Downloading a generated document
 
-![Download](screenshots/9-success.png)
+Generated documents can be downloaded from the success page by clicking on download button
+against each record.
 
-Generated documents can be downloaded from the success page if _"upload document to an attachment field"_ setting is enabled.
+> Note: This option is available only if _"upload document to an attachment field"_ setting is enabled.
