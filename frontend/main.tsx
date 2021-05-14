@@ -42,8 +42,8 @@ export function MainComponent() {
       return (
         <TemplateListComponent
           templates={templates}
-          selectTemplate={(templateId) => {
-            setSelectedTemplate(templateId);
+          selectTemplate={(template) => {
+            setSelectedTemplate(template);
             setRoute(Routes.templateMapping);
           }}
           refreshTemplates={refreshTemplates}

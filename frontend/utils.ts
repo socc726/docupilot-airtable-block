@@ -95,6 +95,12 @@ function getConfigPath(tableId: string, templateId: string, scope: string) {
   return [`table#${tableId}`, `template#${templateId.toString()}`, scope];
 }
 
+export function getMappedTemplates(tableId: string): number[] {
+  return Object.keys(globalConfig.get([`table#${tableId}`]) ?? {}).map(
+    (_) => +_.split('#')[1], // 'template#123' -> 123
+  );
+}
+
 export function loadMapping(
   tableId: string,
   templateId: string,

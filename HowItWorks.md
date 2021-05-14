@@ -30,7 +30,9 @@ A mapping page will be shown where Docupilot's Template Tokens can be mapped wit
 
 ##### Automapping
 
-Before generating a document using a template with a given table for the first time, the App will automatically match Fields from Base and Tokens from Template after applying following transformations on both sides:
+Before generating a document using a template with a given table for the first time,
+the App will automatically match Fields from Base and Tokens from Template after
+applying following transformations on both sides:
 1. lowercase all characters
 2. remove all underscores `_`
 3. remove all blank spaces ` `
