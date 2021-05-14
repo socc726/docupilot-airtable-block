@@ -12,7 +12,6 @@ import { setApiKey } from './apicallouts';
 import { settingsButton } from '@airtable/blocks';
 
 loadCSSFromString(`* {
-    font-family: SF Pro Text;
     font-style: normal;
     font-weight: normal;
 }`);
