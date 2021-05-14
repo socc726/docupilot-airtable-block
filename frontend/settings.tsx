@@ -70,8 +70,11 @@ function APIKeyComponent({ apikey, error, saveAPI }) {
           )}
           {!!error && <Text textColor={colors.RED}>{error}</Text>}
         </FormField>
+        <Text size="small" textColor="light">
+          API Key will be visible to other collaborators of this base
+        </Text>
       </Box>
-      <Box className="settings-action-box">
+      <Box className="settings-action-box" marginTop="16px">
         {!apikey ? (
           <Button
             variant="primary"
