@@ -15,7 +15,12 @@ import { Field, FieldType, Record, Table } from '@airtable/blocks/models';
 import { SchemaComponent } from './schema';
 import { LoaderComponent } from './common';
 import { ImageIcon } from './images';
-import { executeDocumentGeneration, loadMapping, saveMapping } from './utils';
+import {
+  executeDocumentGeneration,
+  loadMapping,
+  removeMissingFieldsFromMapping,
+  saveMapping,
+} from './utils';
 import { getTemplateSchema } from './apicallouts';
 import { Routes } from './routes';
 
@@ -66,6 +71,10 @@ export function TemplateMergeComponent({
         setSchema(response.data.schema);
       }
     });
+  }
+
+  if (schema && mapping) {
+    removeMissingFieldsFromMapping({ mapping, schema });
   }
 
   return (

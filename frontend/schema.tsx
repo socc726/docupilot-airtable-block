@@ -206,7 +206,6 @@ function MappingComponent({
         />
       );
     });
-    // mapping_value.fields = child_mapping;
   }
   return (
     <Box

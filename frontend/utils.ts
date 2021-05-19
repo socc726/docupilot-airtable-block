@@ -1,5 +1,5 @@
 import { useCursor, useLoadable, useWatchable } from '@airtable/blocks/ui';
-import { Record } from '@airtable/blocks/models';
+import { Record, Table } from '@airtable/blocks/models';
 import { RecordId } from '@airtable/blocks/types';
 import { docupilot_to_airtable_field_mapping } from './constants';
 import { globalConfig } from '@airtable/blocks';
@@ -122,18 +122,23 @@ export function saveMapping(
   mapping: DocupilotAirtable.Mapping,
   attachment_field_id: string,
 ) {
+  const stringified_mapping = JSON.stringify(mapping);
   globalConfig
     .setPathsAsync([
       {
         path: getConfigPath(tableId, templateId, 'mapping'),
-        value: JSON.stringify(mapping),
+        value: stringified_mapping,
       },
       {
         path: getConfigPath(tableId, templateId, 'attach'),
         value: attachment_field_id,
       },
     ])
-    .then(() => console.info('mapping saved'));
+    .then(() =>
+      console.info(
+        `mapping saved with mapping: ${stringified_mapping} and attachment_field: ${attachment_field_id}`,
+      ),
+    );
 }
 
 export async function executeDocumentGeneration({
@@ -173,4 +178,27 @@ export async function executeDocumentGeneration({
     await Promise.all(promises);
   }
   return generateDocuments;
+}
+
+export function removeMissingFieldsFromMapping({
+  mapping,
+  schema,
+}: {
+  schema: DocupilotAirtable.SchemaField[];
+  mapping: DocupilotAirtable.Mapping;
+}) {
+  const schema_field_names = schema.map(
+    (docupilot_field) => docupilot_field.name,
+  );
+  for (let mapping_field_name of Object.keys(mapping)) {
+    const index = schema_field_names.indexOf(mapping_field_name);
+    if (index == -1) {
+      delete mapping[mapping_field_name];
+    } else if (mapping[mapping_field_name].fs) {
+      removeMissingFieldsFromMapping({
+        mapping: mapping[mapping_field_name].fs,
+        schema: schema[index].fields,
+      });
+    }
+  }
 }
