@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.0.0-beta.3] - 2021-05-20
+
+* fix deadlock issue. ref commit: 7d24a7b594ab663b2fcc7c7e1b59ea9b29082732 for more details
+    * by cleaning up the mapping with missing schema tokens
+    * issue arises when the token is removed from DP 
+      template, and the *mapped* field is deleted
+      from AT table
+
 ### [1.0.0-beta.2] - 2021-05-14
 
 * Put frequently used templates on top [#3](https://github.com/flackonInc/docupilot-airtable-block/issues/3)
