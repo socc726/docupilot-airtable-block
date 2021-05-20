@@ -164,10 +164,7 @@ function MappingComponent({
   const [linked_table, setLinkedTable] = React.useState(null);
   const has_child = docupilot_field.fields != null;
   if (!mapping[docupilot_field.name]) {
-    mapping[docupilot_field.name] = {
-      af: null,
-      dt: docupilot_field.type,
-    };
+    mapping[docupilot_field.name] = { af: null };
   }
   let mapping_value: DocupilotAirtable.MappingValue =
     mapping[docupilot_field.name];

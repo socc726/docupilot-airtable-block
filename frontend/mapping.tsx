@@ -172,6 +172,7 @@ export function TemplateMergeComponent({
           try {
             const generatedDocuments = await executeDocumentGeneration({
               query: queryResult,
+              schema: schema,
               attachment_field: save_as_attachment ? attachment_field : null,
               selectedRecordIds: selectedRecordIds.slice(),
               mapping: mapping,

@@ -13,11 +13,17 @@ declare namespace DocupilotAirtable {
   }
   interface MappingValue {
     af?: string; // airtable field
-    dt: string; // docupilot token type
     fs?: Mapping; // fields
   }
   interface Mapping {
     [key: string]: MappingValue;
+  }
+  interface RuntimeMappingValue extends MappingValue {
+    docupilot_type: string; //docupilot type
+    fs?: RuntimeMapping; // fields
+  }
+  interface RuntimeMapping extends Mapping {
+    [key: string]: RuntimeMappingValue;
   }
   interface ProfileInfo {
     name: string;

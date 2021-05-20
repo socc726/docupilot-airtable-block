@@ -1,5 +1,5 @@
 import { useCursor, useLoadable, useWatchable } from '@airtable/blocks/ui';
-import { Record, Table } from '@airtable/blocks/models';
+import { Record } from '@airtable/blocks/models';
 import { RecordId } from '@airtable/blocks/types';
 import { docupilot_to_airtable_field_mapping } from './constants';
 import { globalConfig } from '@airtable/blocks';
@@ -17,11 +17,11 @@ export function useSelectedRecordIds(): Array<RecordId> {
 
 async function mergeData(
   key: string,
-  mappingValue: DocupilotAirtable.MappingValue,
+  mappingValue: DocupilotAirtable.RuntimeMappingValue,
   record: Record,
 ) {
   const airtable_field = mappingValue.af;
-  const docupilot_type = mappingValue.dt;
+  const docupilot_type = mappingValue.docupilot_type;
 
   if (airtable_field == null || airtable_field == '-') {
     return null;
@@ -61,6 +61,7 @@ async function mergeData(
   console.warn(
     "getting cell value directly as it didn't match any known type",
     key,
+    docupilot_type,
     mappingValue,
     record,
   );
@@ -68,13 +69,13 @@ async function mergeData(
 }
 
 export async function getMergedData(
-  mapping: DocupilotAirtable.Mapping,
+  runtime_mapping: DocupilotAirtable.RuntimeMapping,
   record: Record,
 ) {
   const data = {};
-
-  for (const [key, value] of Object.entries(mapping)) {
+  for (const [key, value] of Object.entries(runtime_mapping)) {
     const merged_data = await mergeData(key, value, record);
+    console.info(`merged_data for ${key}`, merged_data);
     if (merged_data != null) {
       data[key] = merged_data;
     }
@@ -143,6 +144,7 @@ export function saveMapping(
 
 export async function executeDocumentGeneration({
   query,
+  schema,
   selectedRecordIds,
   attachment_field,
   mapping,
@@ -150,6 +152,7 @@ export async function executeDocumentGeneration({
   onProgress,
 }): Promise<{ [key: string]: DocupilotAirtable.GeneratedDocument }> {
   let generateDocuments = {};
+  const runtime_mapping = toRuntimeMapping(schema, mapping);
 
   // splitting into to batches of 5 records
   let batches = [];
@@ -161,7 +164,7 @@ export async function executeDocumentGeneration({
   for (let batch of batches) {
     const promises = batch.map(async (record_id) => {
       const record: Record = query.getRecordById(record_id);
-      const merged_data = await getMergedData(mapping, record);
+      const merged_data = await getMergedData(runtime_mapping, record);
       const response = await generateDocument(
         selectedTemplate.id,
         merged_data,
@@ -193,12 +196,43 @@ export function removeMissingFieldsFromMapping({
   for (let mapping_field_name of Object.keys(mapping)) {
     const index = schema_field_names.indexOf(mapping_field_name);
     if (index == -1) {
+      // if schema doesn't have this field anymore
       delete mapping[mapping_field_name];
     } else if (mapping[mapping_field_name].fs) {
-      removeMissingFieldsFromMapping({
-        mapping: mapping[mapping_field_name].fs,
-        schema: schema[index].fields,
-      });
+      if (schema[index].fields) {
+        // if the field is still object/list as per the schema
+        removeMissingFieldsFromMapping({
+          mapping: mapping[mapping_field_name].fs,
+          schema: schema[index].fields,
+        });
+      } else {
+        // if field is not object/list anymore in schema
+        delete mapping[mapping_field_name];
+      }
     }
   }
+}
+
+function toRuntimeMapping(
+  schema: DocupilotAirtable.SchemaField[],
+  mapping: DocupilotAirtable.Mapping,
+): DocupilotAirtable.RuntimeMapping {
+  const runtime_mapping: DocupilotAirtable.RuntimeMapping = {};
+  const schema_field_names = schema.map(
+    (docupilot_field) => docupilot_field.name,
+  );
+  for (let mapping_field_name of Object.keys(mapping)) {
+    const index = schema_field_names.indexOf(mapping_field_name);
+    // update docupilot field type from mapping
+    const mapping_value: DocupilotAirtable.MappingValue = mapping[mapping_field_name];
+    const fields: DocupilotAirtable.RuntimeMapping = mapping_value.fs
+      ? toRuntimeMapping(schema[index].fields, mapping_value.fs)
+      : null;
+    runtime_mapping[mapping_field_name] = {
+      fs: fields,
+      af: mapping_value.af,
+      docupilot_type: schema[index].type,
+    };
+  }
+  return runtime_mapping;
 }
