@@ -25,7 +25,7 @@ async function mergeData(
 
   if (airtable_field == null || airtable_field == '-') {
     return null;
-  } else if (docupilot_type == 'string') {
+  } else if (docupilot_type == 'string' || docupilot_type == 'generic') {
     return record.getCellValueAsString(airtable_field);
   }
 
