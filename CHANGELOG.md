@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.0.0-beta.3] - 2021-05-21
+
+* fix issue with outdated docupilot token types
+    * As schema can change, token types may differ between Document generations
+    * this calls for using token type dynamically
+
+* Consider "generic" token types as "string" and send data accordingly
+
 ### [1.0.0-beta.3] - 2021-05-20
 
 * fix deadlock issue. ref commit: 7d24a7b594ab663b2fcc7c7e1b59ea9b29082732 for more details
