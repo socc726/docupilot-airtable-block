@@ -1,6 +1,6 @@
 import { InformationComponent } from './common';
 import React from 'react';
-import { Text, Box, colors, Button } from '@airtable/blocks/ui';
+import { Text, Box, colors } from '@airtable/blocks/ui';
 import { Routes } from './routes';
 
 export function NoTemplatesInfo() {
