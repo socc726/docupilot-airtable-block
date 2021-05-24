@@ -46,9 +46,8 @@ export function TemplateMergeComponent({
   const [attachment_field, setAttachmentField] = React.useState<Field>(
     active_table.getFieldByIdIfExists(attachment_field_id),
   );
-  const [schema, setSchema] = React.useState<DocupilotAirtable.SchemaField[]>(
-    null,
-  );
+  const [schema, setSchema] =
+    React.useState<DocupilotAirtable.SchemaField[]>(null);
   const [documents_merged, setDocumentsMerged] = React.useState<number>(null);
 
   const canSetPaths = globalConfig.checkPermissionsForSetPaths().hasPermission;

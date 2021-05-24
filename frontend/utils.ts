@@ -224,7 +224,8 @@ function toRuntimeMapping(
   for (let mapping_field_name of Object.keys(mapping)) {
     const index = schema_field_names.indexOf(mapping_field_name);
     // update docupilot field type from mapping
-    const mapping_value: DocupilotAirtable.MappingValue = mapping[mapping_field_name];
+    const mapping_value: DocupilotAirtable.MappingValue =
+      mapping[mapping_field_name];
     const fields: DocupilotAirtable.RuntimeMapping = mapping_value.fs
       ? toRuntimeMapping(schema[index].fields, mapping_value.fs)
       : null;

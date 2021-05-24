@@ -21,10 +21,8 @@ export function MainComponent() {
   const [templates, setTemplates] = React.useState<
     DocupilotAirtable.Template[]
   >([]);
-  const [
-    selected_template,
-    setSelectedTemplate,
-  ] = React.useState<DocupilotAirtable.Template>(null);
+  const [selected_template, setSelectedTemplate] =
+    React.useState<DocupilotAirtable.Template>(null);
   const selected_record_ids: Array<RecordId> = useSelectedRecordIds();
 
   function refreshTemplates() {
