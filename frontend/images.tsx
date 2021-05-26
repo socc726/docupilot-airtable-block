@@ -14,6 +14,7 @@ export function ImageIcon({name}) {
         'select-record': selectRecord,
         'merge-success': mergeSuccess,
         'merge-fail': mergeFail,
+        'download': download,
         'sync': sync
     }[name] || <Icon size="32px" name="file"/>;
 }
@@ -125,6 +126,12 @@ const mergeFail = <svg width="108" height="108" viewBox="0 0 108 108" fill="none
     <circle cx="86.5" cy="14.5" r="1.5" fill="#E3EAF5"/>
     <path d="M53.793 64.4224L40.8847 64.4224C37.8759 64.4224 36.145 61.0012 37.9274 58.5772L50.8356 41.022C52.3025 39.027 55.2834 39.027 56.7503 41.022L69.6585 58.5772C71.4409 61.0013 69.7101 64.4224 66.7012 64.4224L53.793 64.4224Z" fill="#F36F6F"/>
     <path d="M52.0151 43.941L52.2325 55.3235H54.4658L54.6916 43.941H52.0151ZM53.3534 61.2616C54.2985 61.2616 54.8757 60.4973 54.8757 59.2627C54.8757 58.0162 54.2985 57.2519 53.3534 57.2519C52.4166 57.2519 51.8311 58.0162 51.8311 59.2627C51.8311 60.4973 52.4166 61.2616 53.3534 61.2616Z" fill="white"/>
+</svg>
+
+const download = <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="save_alt_24px">
+    <path id="icon/content/save_alt_24px" fill-rule="evenodd" clip-rule="evenodd" d="M12.9917 8.40833L10.8333 10.5583V2.5H9.16667V10.5583L7.00833 8.40833L5.83333 9.58333L10 13.75L14.1667 9.58333L12.9917 8.40833ZM15.8333 15.8333V10H17.5V15.8333C17.5 16.75 16.75 17.5 15.8333 17.5H4.16667C3.25 17.5 2.5 16.75 2.5 15.8333V10H4.16667V15.8333H15.8333Z" fill="#6C737C"/>
+    </g>
 </svg>
 
 const sync = <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
