@@ -1,6 +1,10 @@
 # Changelog
 
-### [1.0.0-beta.3] - 2021-05-21
+### [1.0.0-beta.5] - 2021-06-04
+
+* Improve auto-matching logic to ignore hyphens `-` too
+
+### [1.0.0-beta.4] - 2021-05-21
 
 * fix issue with outdated docupilot token types
     * As schema can change, token types may differ between Document generations
