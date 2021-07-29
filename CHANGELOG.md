@@ -1,5 +1,9 @@
 # Changelog
 
+### [1.0.0-beta.6] 2021-07-29
+
+* Improve success page
+
 ### [1.0.0-beta.5] - 2021-06-04
 
 * Improve auto-matching logic to ignore hyphens `-` too
