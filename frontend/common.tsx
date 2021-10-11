@@ -164,6 +164,7 @@ export function GeneratedDocumentRow({
                   width: 'calc(100vw - 120px)',
                   fontSize: '12px',
                   color: '#B3B3B3',
+                  maxWidth: '150px',
                 }}
               >
                 {document.file_name}

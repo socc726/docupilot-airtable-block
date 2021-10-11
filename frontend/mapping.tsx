@@ -67,7 +67,7 @@ export function TemplateMergeComponent({
   if (!schema) {
     getTemplateSchema(selectedTemplate.id).then((response) => {
       if (response) {
-        setSchema(response.data.schema);
+        setSchema(response);
       }
     });
   }
@@ -89,7 +89,7 @@ export function TemplateMergeComponent({
         flexDirection="row"
         alignItems="center"
       >
-        <ImageIcon name={selectedTemplate.output_type} />
+        <ImageIcon name={selectedTemplate.preferences.output_type} />
         <Text
           fontWeight="500"
           fontSize="14px"
