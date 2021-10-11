@@ -1,0 +1,3 @@
+[submodule "docupilot-js-sdk"]
+	path = docupilot-js-sdk
+	url = git@github.com:flackonInc/docupilot-js-sdk.git

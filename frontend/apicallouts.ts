@@ -1,4 +1,4 @@
-import * as API from './api/index';
+import * as API from './../docupilot-js-sdk/api/index';
 
 API.OpenAPI.BASE = 'https://staging.docupilot.app';
 
