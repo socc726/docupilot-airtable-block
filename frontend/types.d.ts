@@ -1,9 +1,13 @@
 declare namespace DocupilotAirtable {
+  interface Preferences {
+    output_type: string;
+  }
   interface Template {
     id: number;
     title: string;
     type: string;
     output_type: string;
+    preferences: Preferences;
   }
   interface SchemaField {
     name: string;

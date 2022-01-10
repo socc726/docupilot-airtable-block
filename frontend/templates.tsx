@@ -31,7 +31,7 @@ function TemplateItem({
       alignItems="center"
       onClick={select}
     >
-      <ImageIcon name={template.output_type} />
+      <ImageIcon name={template.preferences.output_type} />
       <Text
         fontWeight={500}
         fontSize="14px"

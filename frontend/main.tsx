@@ -26,9 +26,8 @@ export function MainComponent() {
   const selected_record_ids: Array<RecordId> = useSelectedRecordIds();
 
   function refreshTemplates() {
-    getTemplates().then((response) => response && setTemplates(response.data));
+    getTemplates().then((response) => response && setTemplates(response));
   }
-
   if (!templates || !templates.length) {
     refreshTemplates();
     return <LoaderComponent />;

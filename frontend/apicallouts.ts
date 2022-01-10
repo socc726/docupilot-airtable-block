@@ -1,50 +1,36 @@
-import axios, { AxiosResponse } from 'axios';
+import * as API from './../docupilot-js-sdk/api/index';
 
-axios.defaults.baseURL = 'https://dashboard.docupilot.app/';
-axios.defaults.headers.post['Content-Type'] = 'application/json';
+API.OpenAPI.BASE = 'https://staging.docupilot.app';
 
-export function setApiKey(apikey: string) {
-  axios.defaults.headers.common['apikey'] = apikey;
+export async function setApiKey(apikey: string) {
+  API.OpenAPI.TOKEN = apikey;
 }
 
-export async function getProfileDetails(apikey) {
-  const response: AxiosResponse = await axios.get(`accounts/v1/me`, {
-    headers: { apikey: apikey },
-  });
-  return response.data;
+export async function getProfileDetails(apikey: string) {
+  await setApiKey(apikey);
+  const response = await API.UsersService.getMe();
+  return response;
 }
 
-export async function getTemplates() {
-  try {
-    const response: AxiosResponse = await axios.get(`api/v1/templates`, {
-      params: { filter: 'all' },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error getting templates :: ', error);
-  }
+export async function getTemplates(): Promise<any> {
+  const response = await API.TemplatesService.listAllTemplates();
+  return response;
 }
 
-export async function getTemplateSchema(templateId) {
-  try {
-    const response: AxiosResponse = await axios.get(
-      `api/v1/templates/${templateId}/schema`,
-    );
-    return response.data;
-  } catch (error) {
-    console.error('Error getting template schema :: ', error);
-  }
+export async function getTemplateSchema(id: any): Promise<any> {
+  const response = await API.TemplatesService.getTemplateSchema(id);
+  return response;
 }
 
-export async function generateDocument(templateId, data, download = false) {
-  try {
-    let url_endpoint: string = `api/v1/templates/${templateId}/merge`;
-    if (download) {
-      url_endpoint = url_endpoint + `?download=true`;
-    }
-    const response: AxiosResponse = await axios.post(url_endpoint, data);
-    return response.data;
-  } catch (error) {
-    console.error('Error generating document :: ', error);
-  }
+export async function generateDocument(
+  id: any,
+  data: any,
+  download = false,
+): Promise<any> {
+  const response = await API.GenerateService.generateDocument(
+    id,
+    data,
+    download ? 'true' : 'false',
+  );
+  return response;
 }

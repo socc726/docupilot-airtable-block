@@ -172,8 +172,8 @@ export async function executeDocumentGeneration({
       );
       generateDocuments[record.id] = {
         record_name: record.name,
-        file_name: response.data.file_name,
-        url: attachment_field ? response.data.file_url : null,
+        file_name: response.file_name,
+        url: attachment_field ? response.file_url : null,
       };
       onProgress(Object.keys(generateDocuments).length);
     });
